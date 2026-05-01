@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import styles from './App.module.css'
 
-export default function ListInput({ onSubmit }) {
+export default function ListView({ onSubmit }) {
   const [value, setValue] = useState('')
   const [pasted, setPasted] = useState(false)
 

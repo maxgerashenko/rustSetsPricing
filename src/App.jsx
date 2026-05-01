@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import styles from './App.module.css'
-import ListInput from './ListInput.jsx'
+import ListView from './ListView.jsx'
 import SetView from './SetView.jsx'
 
 export default function App() {
@@ -17,7 +17,7 @@ export default function App() {
 
         {list
           ? <SetView rawList={list} onBack={() => setList(null)} />
-          : <ListInput onSubmit={setList} />
+          : <ListView onSubmit={setList} />
         }
       </div>
     </div>

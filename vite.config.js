@@ -3,4 +3,13 @@ import react from '@vitejs/plugin-react'
 
 export default defineConfig({
   plugins: [react({ jsxRuntime: 'automatic' })],
+  server: {
+    proxy: {
+      '/api/steam': {
+        target: 'https://steamcommunity.com',
+        changeOrigin: true,
+        rewrite: path => path.replace(/^\/api\/steam/, ''),
+      },
+    },
+  },
 })

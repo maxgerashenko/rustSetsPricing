@@ -17,8 +17,8 @@ function parseDollars(str) {
 
 async function fetchItem(name) {
   const [priceRes, imgRes] = await Promise.allSettled([
-    fetch(`https://steamcommunity.com/market/priceoverview/?appid=252490&currency=1&market_hash_name=${encodeURIComponent(name)}`),
-    fetch(`https://steamcommunity.com/market/search/render/?appid=252490&norender=1&count=1&query=${encodeURIComponent(name)}`),
+    fetch(`/api/steam/market/priceoverview/?appid=252490&currency=1&market_hash_name=${encodeURIComponent(name)}`),
+    fetch(`/api/steam/market/search/render/?appid=252490&norender=1&count=1&query=${encodeURIComponent(name)}`),
   ])
 
   let price = null

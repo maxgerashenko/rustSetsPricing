@@ -1,0 +1,148 @@
+.page {
+  min-height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  background:
+    radial-gradient(ellipse 80% 50% at 50% -10%, rgba(205, 65, 43, 0.12) 0%, transparent 70%),
+    var(--bg);
+}
+
+.hero {
+  width: 100%;
+  max-width: 560px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  text-align: center;
+}
+
+.badge {
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.15em;
+  color: var(--accent);
+  background: rgba(205, 65, 43, 0.12);
+  border: 1px solid rgba(205, 65, 43, 0.3);
+  border-radius: 99px;
+  padding: 0.3rem 0.85rem;
+  text-transform: uppercase;
+}
+
+.title {
+  font-size: clamp(2.2rem, 6vw, 3.2rem);
+  font-weight: 700;
+  line-height: 1.1;
+  letter-spacing: -0.03em;
+  color: var(--text-primary);
+  margin-top: 0.25rem;
+}
+
+.accent {
+  color: var(--accent);
+}
+
+.subtitle {
+  font-size: 1rem;
+  color: var(--text-secondary);
+  margin-bottom: 0.5rem;
+}
+
+.form {
+  width: 100%;
+  margin-top: 0.5rem;
+}
+
+.inputWrapper {
+  width: 100%;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.inputWrapper:focus-within {
+  border-color: var(--border-focus);
+  box-shadow: 0 0 0 3px var(--accent-glow);
+}
+
+.input {
+  width: 100%;
+  background: transparent;
+  border: none;
+  outline: none;
+  padding: 1rem 1.1rem;
+  font-family: 'Inter', monospace;
+  font-size: 0.95rem;
+  color: var(--text-primary);
+  resize: none;
+  line-height: 1.6;
+}
+
+.input::placeholder {
+  color: var(--text-muted);
+}
+
+.actions {
+  display: grid;
+  grid-template-columns: 1fr 2fr;
+  border-top: 1px solid var(--border);
+}
+
+.pasteBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.85rem 1rem;
+  background: transparent;
+  border: none;
+  border-right: 1px solid var(--border);
+  color: var(--text-secondary);
+  font-family: inherit;
+  font-size: 0.9rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  cursor: pointer;
+  transition: color 0.15s, background 0.15s;
+  white-space: nowrap;
+}
+
+.pasteBtn:hover {
+  color: var(--text-primary);
+  background: var(--surface-hover);
+}
+
+.button {
+  display: block;
+  width: 100%;
+  padding: 0.85rem 1rem;
+  background: var(--accent);
+  color: #fff;
+  font-family: inherit;
+  font-size: 0.9rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  border: none;
+  cursor: pointer;
+  transition: background 0.15s, opacity 0.15s;
+}
+
+.button:hover:not(:disabled) {
+  background: #e04d35;
+}
+
+.button:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+.hint {
+  margin-top: 0.6rem;
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  text-align: center;
+}

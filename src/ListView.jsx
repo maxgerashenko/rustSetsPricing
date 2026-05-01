@@ -31,6 +31,11 @@ export default function ListView({ onSubmit }) {
             placeholder="Paste item names to get live Steam Market prices"
             value={value}
             onChange={e => setValue(e.target.value)}
+            onPaste={e => {
+              e.preventDefault()
+              const text = e.clipboardData.getData('text')
+              setValue(text.split('\n').filter(l => l.trim()).join('\n'))
+            }}
             rows={7}
             spellCheck={false}
           />

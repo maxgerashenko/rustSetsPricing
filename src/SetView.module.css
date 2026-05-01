@@ -5,6 +5,29 @@
   gap: 0;
 }
 
+.inspectBtn {
+  width: 100%;
+  margin-top: 0.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.85rem 1rem;
+  background: var(--surface);
+  border: 1px solid var(--accent);
+  border-radius: var(--radius);
+  color: var(--accent);
+  font-family: inherit;
+  font-size: 0.9rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+
+.inspectBtn:hover {
+  background: rgba(205, 65, 43, 0.1);
+}
+
 .list {
   list-style: none;
   width: 100%;
@@ -33,8 +56,8 @@
 }
 
 .thumb {
-  width: 48px;
-  height: 48px;
+  width: 62px;
+  height: 62px;
   border-radius: 6px;
   overflow: hidden;
   background: #1b2838;
@@ -48,6 +71,7 @@
   width: 100%;
   height: 100%;
   object-fit: contain;
+  background-color: #1b2838;
 }
 
 .thumbPlaceholder {

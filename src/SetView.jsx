@@ -31,8 +31,11 @@ async function fetchItem(name) {
   let image = null
   if (imgRes.status === 'fulfilled' && imgRes.value.ok) {
     const data = await imgRes.value.json()
-    const match = data.results_html?.match(/src="(https:\/\/[^"]+\/economy\/image\/[^"]+)"/)
-    if (match) image = match[1]
+    const match = data.results_html?.match(/economy\/image\/([^/]+)\//)
+    if (match) {
+      const hash = match[1]
+      image = `https://community.fastly.steamstatic.com//economy//image//${hash}//62fx62f%20202 1x, https://community.fastly.steamstatic.com//economy//image//${hash}//62fx62fdpx2x%20202 2x`
+    }
   }
 
   if (price === null) throw new Error('not found')
@@ -72,7 +75,9 @@ export default function SetView({ rawList, onBack }) {
           <li key={it.name} className={styles.item}>
             <div className={styles.thumb}>
               {it.image
-                ? <img src={it.image} alt={it.name} width={48} height={48} referrerPolicy="no-referrer" />
+                ? <a href={it.image.split(' ')[0]} target="_blank" rel="noreferrer">
+                    <img srcSet={it.image} alt={it.name} width={62} height={62} referrerPolicy="no-referrer" loading="eager" />
+                  </a>
                 : <div className={styles.thumbPlaceholder} />
               }
             </div>
@@ -85,6 +90,15 @@ export default function SetView({ rawList, onBack }) {
           </li>
         ))}
       </ul>
+
+      <button className={styles.inspectBtn} type="button" onClick={() => items.filter(it => it.image).forEach(it => window.open(it.image.split(' ')[0], '_blank'))}>
+        inspect-images
+        <span style={{ display: 'none' }}>
+          {items.filter(it => it.image).map(it => (
+            <img key={it.name} srcSet={it.image} alt={it.name} width={62} height={62} referrerPolicy="no-referrer" />
+          ))}
+        </span>
+      </button>
 
       {allDone && (
         <div className={styles.total}>

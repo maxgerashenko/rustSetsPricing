@@ -81,7 +81,14 @@ export default function SetView({ rawList, onBack }) {
                 : <div className={styles.thumbPlaceholder} />
               }
             </div>
-            <span className={styles.name}>{it.name}</span>
+            <a
+              className={styles.name}
+              href={`https://steamcommunity.com/market/listings/252490/${encodeURIComponent(it.name)}`}
+              target="_blank"
+              rel="noreferrer"
+            >
+              {it.name}
+            </a>
             <span className={styles.price}>
               {it.status === 'loading' && <span className={styles.skeleton} />}
               {it.status === 'done' && it.price}

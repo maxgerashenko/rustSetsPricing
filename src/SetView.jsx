@@ -16,9 +16,10 @@ function parseDollars(str) {
 }
 
 async function fetchItem(name) {
+  const encoded = encodeURIComponent(name)
   const [priceRes, imgRes] = await Promise.allSettled([
-    fetch(`/api/steam/market/priceoverview/?appid=252490&currency=1&market_hash_name=${encodeURIComponent(name)}`),
-    fetch(`/api/steam/market/search/render/?appid=252490&norender=1&count=1&query=${encodeURIComponent(name)}`),
+    fetch(`/api/steam/market/priceoverview/?appid=252490&currency=1&market_hash_name=${encoded}`),
+    fetch(`/api/steam/market/listings/252490/${encoded}/render?start=0&count=1&currency=1&format=json`),
   ])
 
   let price = null
@@ -30,8 +31,8 @@ async function fetchItem(name) {
   let image = null
   if (imgRes.status === 'fulfilled' && imgRes.value.ok) {
     const data = await imgRes.value.json()
-    const icon = data.results?.[0]?.asset_description?.icon_url
-    if (icon) image = `https://steamcommunity-a.akamaihd.net/economy/image/${icon}/62fx62f`
+    const match = data.results_html?.match(/src="(https:\/\/[^"]+\/economy\/image\/[^"]+)"/)
+    if (match) image = match[1]
   }
 
   if (price === null) throw new Error('not found')
@@ -71,7 +72,7 @@ export default function SetView({ rawList, onBack }) {
           <li key={it.name} className={styles.item}>
             <div className={styles.thumb}>
               {it.image
-                ? <img src={it.image} alt={it.name} width={48} height={48} />
+                ? <img src={it.image} alt={it.name} width={48} height={48} referrerPolicy="no-referrer" />
                 : <div className={styles.thumbPlaceholder} />
               }
             </div>

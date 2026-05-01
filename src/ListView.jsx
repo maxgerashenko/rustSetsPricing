@@ -14,7 +14,7 @@ export default function ListView({ onSubmit }) {
   async function handlePaste() {
     try {
       const text = await navigator.clipboard.readText()
-      setValue(text)
+      setValue(text.split('\n').filter(l => l.trim()).join('\n'))
       setPasted(true)
       setTimeout(() => setPasted(false), 1500)
     } catch {
@@ -24,15 +24,11 @@ export default function ListView({ onSubmit }) {
 
   return (
     <>
-      <p className={styles.subtitle}>
-        Paste item names to get live Steam Market prices
-      </p>
-
       <form className={styles.form} onSubmit={handleSubmit}>
         <div className={styles.inputWrapper}>
           <textarea
             className={styles.input}
-            placeholder={`Burlap Shirt\nLeather Gloves\nWood Armor Helmet`}
+            placeholder="Paste item names to get live Steam Market prices"
             value={value}
             onChange={e => setValue(e.target.value)}
             rows={7}

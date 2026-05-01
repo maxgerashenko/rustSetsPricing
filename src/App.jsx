@@ -1,11 +1,10 @@
+import { useState } from 'react'
 import styles from './App.module.css'
 import ListInput from './ListInput.jsx'
+import SetView from './SetView.jsx'
 
 export default function App() {
-  function handleSubmit(value) {
-    // TODO: parse items and fetch prices
-    console.log('items:', value)
-  }
+  const [list, setList] = useState(null)
 
   return (
     <div className={styles.page}>
@@ -16,7 +15,10 @@ export default function App() {
           <span className={styles.accent}>skin set</span>
         </h1>
 
-        <ListInput onSubmit={handleSubmit} />
+        {list
+          ? <SetView rawList={list} onBack={() => setList(null)} />
+          : <ListInput onSubmit={setList} />
+        }
       </div>
     </div>
   )

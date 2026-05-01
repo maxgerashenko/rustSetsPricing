@@ -42,7 +42,7 @@ export default function App() {
               placeholder={`Burlap Shirt\nLeather Gloves\nWood Armor Helmet`}
               value={value}
               onChange={e => setValue(e.target.value)}
-              rows={4}
+              rows={7}
               spellCheck={false}
             />
             <div className={styles.actions}>

@@ -27,7 +27,6 @@ export default function SetView({ rawList, onBack }) {
   useEffect(() => {
     const names = parseItems(rawList)
     setItems(names.map(name => ({ name, status: 'loading', price: null, image: null })))
-
     const controller = new AbortController()
     names.forEach(async name => {
       try {
@@ -55,8 +54,8 @@ export default function SetView({ rawList, onBack }) {
           <li key={it.name} className={styles.item}>
             <div className={styles.thumb}>
               {it.image
-                ? <a href={`https://community.fastly.steamstatic.com/economy/image/${it.image.split('/').pop()}/62fx62fdpx%202x`} target="_blank" rel="noreferrer">
-                    <img src={it.image} alt={it.name} width={62} height={62} loading="eager" />
+                ? <a href={it.image} target="_blank" rel="noreferrer">
+                    <img src={`/api/images/${it.image.match(/economy\/image\/([^/]+)\//)[1]}`} alt={it.name} width={62} height={62}/>
                   </a>
                 : <div className={styles.thumbPlaceholder} />
               }
@@ -78,11 +77,11 @@ export default function SetView({ rawList, onBack }) {
         ))}
       </ul>
 
-      <button className={styles.inspectBtn} type="button" onClick={() => items.filter(it => it.image).forEach(it => window.open(`https://community.fastly.steamstatic.com/economy/image/${it.image.split('/').pop()}/62fx62fdpx%202x`, '_blank'))}>
+      <button className={styles.inspectBtn} type="button" onClick={() => items.filter(it => it.image).forEach(it => window.open(it.image, '_blank'))}>
         inspect-images
         <span style={{ display: 'none' }}>
           {items.filter(it => it.image).map(it => (
-            <img key={it.name} srcSet={`https://community.fastly.steamstatic.com/economy/image/${it.image.split('/').pop()}/62fx62fdpx%202x`} alt={it.name} width={62} height={62} referrerPolicy="no-referrer" />
+            <img key={it.name} srcSet={it.image} alt={it.name} width={62} height={62} referrerPolicy="no-referrer" />
           ))}
         </span>
       </button>

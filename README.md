@@ -11,7 +11,7 @@ docker run -p 9000:9000 -p 9001:9001 \
   quay.io/minio/minio server /data --console-address ":9001"
 ```
 
-MinIO console at http://localhost:9001 (user: `minioadmin`, password: `minioadmin`).  
+MinIO console at http://localhost:9001 — user: `minioadmin`, password: `minioadmin`.  
 The Express server auto-creates the `rust-items` bucket on first start.
 
 ### 2. Install dependencies
@@ -69,8 +69,8 @@ Swap MinIO for any S3-compatible service by changing the env vars in `.env`:
 | `S3_BUCKET` | `rust-items` | `rust-items` |
 | `S3_ACCESS_KEY` | `minioadmin` | from provider |
 | `S3_SECRET_KEY` | `minioadmin` | from provider |
-| `NO_CACHE` | *(unset)* | `true` to skip S3 cache reads/writes |
+| `CACHE` | `false` | `true` to enable S3 cache reads/writes |
 
 Cloudflare R2 is recommended for production (no egress fees).
 
-Set `NO_CACHE=true` in `.env` to always hit Steam directly — useful during development to test fresh data.
+Set `CACHE=false` in `.env` to always hit Steam directly — useful during development to test fresh data.

@@ -85,7 +85,7 @@ async function fetchPrice(encoded) {
 }
 
 const PRICE_TTL_MS = 24 * 60 * 60 * 1000
-const NO_CACHE = process.env.NO_CACHE === 'true'
+const CACHE = process.env.CACHE === 'true'
 
 async function s3GetJson(key) {
   try {
@@ -116,13 +116,13 @@ app.get('/api/item', async (req, res) => {
   const encoded = encodeURIComponent(name)
   const cacheKey = `items/${encoded}.json`
 
-  if (!NO_CACHE) {
+  if (CACHE) {
     const cached = await s3GetJson(cacheKey)
     if (cached && (cached.hash || cached.price !== undefined)) {
       const priceAge = Date.now() - (cached.cachedAt ?? 0)
       if (cached.hash && priceAge < PRICE_TTL_MS) {
         console.log(`[Cache] hit — ${name}`)
-        return res.json({ price: cached.price, image: `/api/images/${cached.hash}` })
+        return res.json({ price: cached.price, image: `https://community.fastly.steamstatic.com/economy/image/${cached.hash}/%x2` })
       }
     }
   }
@@ -141,25 +141,27 @@ app.get('/api/item', async (req, res) => {
     if (match) hash = match[1]
   }
 
-  if (hash && !NO_CACHE) {
+  if (hash && CACHE) {
     s3PutJson(cacheKey, { price, hash, cachedAt: Date.now() }).catch(() => {})
   }
 
-  res.json({ price, image: hash ? `/api/images/${hash}` : null })
+  res.json({ price, image: hash ? `https://community.fastly.steamstatic.com/economy/image/${hash}/62fx62fdpx%202x` : null })
 })
 
 app.get('/api/images/:hash', async (req, res) => {
   const { hash } = req.params
   const key = `${hash}.png`
 
-  try {
-    const obj = await s3.send(new GetObjectCommand({ Bucket: BUCKET, Key: key }))
-    res.setHeader('Content-Type', 'image/png')
-    res.setHeader('Cache-Control', 'public, max-age=86400')
-    obj.Body.pipe(res)
-    return
-  } catch (err) {
-    if (err.name !== 'NoSuchKey') console.error('S3 get:', err.message)
+  if (CACHE) {
+    try {
+      const obj = await s3.send(new GetObjectCommand({ Bucket: BUCKET, Key: key }))
+      res.setHeader('Content-Type', 'image/png')
+      res.setHeader('Cache-Control', 'public, max-age=86400')
+      obj.Body.pipe(res)
+      return
+    } catch (err) {
+      if (err.name !== 'NoSuchKey') console.error('S3 get:', err.message)
+    }
   }
 
   try {

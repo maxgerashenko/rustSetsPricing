@@ -84,6 +84,29 @@ async function fetchPrice(encoded) {
   return null
 }
 
+const PRICE_TTL_MS = 24 * 60 * 60 * 1000
+const NO_CACHE = process.env.NO_CACHE === 'true'
+
+async function s3GetJson(key) {
+  try {
+    const obj = await s3.send(new GetObjectCommand({ Bucket: BUCKET, Key: key }))
+    const chunks = []
+    for await (const chunk of obj.Body) chunks.push(chunk)
+    return JSON.parse(Buffer.concat(chunks).toString())
+  } catch {
+    return null
+  }
+}
+
+async function s3PutJson(key, value) {
+  await s3.send(new PutObjectCommand({
+    Bucket: BUCKET,
+    Key: key,
+    Body: JSON.stringify(value),
+    ContentType: 'application/json',
+  }))
+}
+
 const app = express()
 
 app.get('/api/item', async (req, res) => {
@@ -91,6 +114,19 @@ app.get('/api/item', async (req, res) => {
   if (!name) { res.status(400).end(); return }
 
   const encoded = encodeURIComponent(name)
+  const cacheKey = `items/${encoded}.json`
+
+  if (!NO_CACHE) {
+    const cached = await s3GetJson(cacheKey)
+    if (cached && (cached.hash || cached.price !== undefined)) {
+      const priceAge = Date.now() - (cached.cachedAt ?? 0)
+      if (cached.hash && priceAge < PRICE_TTL_MS) {
+        console.log(`[Cache] hit — ${name}`)
+        return res.json({ price: cached.price, image: `/api/images/${cached.hash}` })
+      }
+    }
+  }
+
   const [priceResult, renderRes] = await Promise.allSettled([
     fetchPrice(encoded),
     steamFetch(`https://steamcommunity.com/market/listings/252490/${encoded}/render?start=0&count=1&currency=1&format=json`),
@@ -98,14 +134,18 @@ app.get('/api/item', async (req, res) => {
 
   const price = priceResult.status === 'fulfilled' ? priceResult.value : null
 
-  let image = null
+  let hash = null
   if (renderRes.status === 'fulfilled' && renderRes.value.ok) {
     const data = await renderRes.value.json()
     const match = data.results_html?.match(/economy\/image\/([^/]+)\//)
-    if (match) image = `/api/images/${match[1]}`
+    if (match) hash = match[1]
   }
 
-  res.json({ price, image })
+  if (hash && !NO_CACHE) {
+    s3PutJson(cacheKey, { price, hash, cachedAt: Date.now() }).catch(() => {})
+  }
+
+  res.json({ price, image: hash ? `/api/images/${hash}` : null })
 })
 
 app.get('/api/images/:hash', async (req, res) => {

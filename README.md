@@ -29,6 +29,25 @@ npm run dev
 This runs the Express image proxy (port 3001) and Vite dev server (port 5173) together.  
 Open http://localhost:5173.
 
+## Clearing the cache
+
+Item prices and image hashes are cached in MinIO under `items/*.json` (24h TTL). Images are cached as `*.png` (permanent).
+
+**MinIO web console** — http://localhost:9001, browse the `rust-items` bucket, delete what you need.
+
+**CLI with `mc`:**
+
+```sh
+# one-time setup
+mc alias set local http://localhost:9000 minioadmin minioadmin
+
+# clear price/hash cache only (images stay)
+mc rm --recursive --force local/rust-items/items/
+
+# clear everything
+mc rm --recursive --force local/rust-items/
+```
+
 ## How it works
 
 Steam's CDN blocks browser requests (hotlink protection). The app routes images through a local proxy:
@@ -50,5 +69,8 @@ Swap MinIO for any S3-compatible service by changing the env vars in `.env`:
 | `S3_BUCKET` | `rust-items` | `rust-items` |
 | `S3_ACCESS_KEY` | `minioadmin` | from provider |
 | `S3_SECRET_KEY` | `minioadmin` | from provider |
+| `NO_CACHE` | *(unset)* | `true` to skip S3 cache reads/writes |
 
 Cloudflare R2 is recommended for production (no egress fees).
+
+Set `NO_CACHE=true` in `.env` to always hit Steam directly — useful during development to test fresh data.

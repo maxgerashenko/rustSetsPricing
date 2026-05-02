@@ -24,3 +24,4 @@ Item images are retrieved via the Steam Market search/item detail endpoints or b
 - App resolves each name against Steam Market, displays thumbnail image, unit price, and quantity
 - Total cost of the set is summed and displayed
 - Steam Market rate-limits aggressively — requests must be throttled or batched carefully
+- Avoid using ! use == false or true instead

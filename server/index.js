@@ -111,20 +111,17 @@ const app = express()
 
 app.get('/api/item', async (req, res) => {
   const { name } = req.query
-  if (!name) { res.status(400).end(); return }
+  if (name == null) { res.status(400).end(); return }
 
   const encoded = encodeURIComponent(name)
   const cacheKey = `items/${encoded}.json`
 
   if (CACHE) {
     const cached = await s3GetJson(cacheKey)
-    if (cached && (cached.hash || cached.price !== undefined)) {
-      const priceAge = Date.now() - (cached.cachedAt ?? 0)
-      if (cached.hash && priceAge < PRICE_TTL_MS) {
-        console.log(`[Cache] hit — ${name}`)
-        return res.json({ price: cached.price, image: `https://community.fastly.steamstatic.com/economy/image/${cached.hash}/%x2` })
-      }
-    }
+    if (cached?.hash == null) return
+    if (Date.now() - (cached.cachedAt ?? 0) >= PRICE_TTL_MS) return
+    console.log(`[Cache] hit — ${name}`)
+    return res.json({ price: cached.price, image: `https://community.fastly.steamstatic.com/economy/image/${cached.hash}/62fx62fdpx%202x` })
   }
 
   const [priceResult, renderRes] = await Promise.allSettled([
@@ -168,7 +165,7 @@ app.get('/api/images/:hash', async (req, res) => {
     const upstream = await fetch(
       `https://community.fastly.steamstatic.com/economy/image/${hash}/62fx62fdpx%202x`
     )
-    if (!upstream.ok) { res.status(502).end(); return }
+    if (upstream.ok == false) { res.status(502).end(); return }
 
     const buffer = Buffer.from(await upstream.arrayBuffer())
 

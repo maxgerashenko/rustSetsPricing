@@ -78,6 +78,15 @@ export default function SetView({ rawList, onBack }) {
         ))}
       </ul>
 
+      <button className={styles.inspectBtn} type="button" onClick={() => items.filter(it => it.image).forEach(it => window.open(`https://community.fastly.steamstatic.com/economy/image/${it.image.split('/').pop()}/62fx62fdpx%202x`, '_blank'))}>
+        inspect-images
+        <span style={{ display: 'none' }}>
+          {items.filter(it => it.image).map(it => (
+            <img key={it.name} srcSet={`https://community.fastly.steamstatic.com/economy/image/${it.image.split('/').pop()}/62fx62fdpx%202x`} alt={it.name} width={62} height={62} referrerPolicy="no-referrer" />
+          ))}
+        </span>
+      </button>
+
       {allDone && (
         <div className={styles.total}>
           <span>Total</span>

@@ -55,7 +55,7 @@ export default function SetView({ rawList, onBack }) {
           <li key={it.name} className={styles.item}>
             <div className={styles.thumb}>
               {it.image
-                ? <a href={it.image} target="_blank" rel="noreferrer">
+                ? <a href={`https://community.fastly.steamstatic.com/economy/image/${it.image.split('/').pop()}/62fx62fdpx%202x`} target="_blank" rel="noreferrer">
                     <img src={it.image} alt={it.name} width={62} height={62} loading="eager" />
                   </a>
                 : <div className={styles.thumbPlaceholder} />

@@ -2,12 +2,13 @@ import { useState } from 'react'
 import styles from './App.module.css'
 
 export default function ListView({ onSubmit }) {
-  const [value, setValue] = useState('')
+  const [value, setValue] = useState(() => localStorage.getItem('lastList') ?? '')
   const [pasted, setPasted] = useState(false)
 
   function handleSubmit(e) {
     e.preventDefault()
     if (!value.trim()) return
+    localStorage.setItem('lastList', value)
     onSubmit?.(value)
   }
 

@@ -5,10 +5,9 @@ export default defineConfig({
   plugins: [react({ jsxRuntime: 'automatic' })],
   server: {
     proxy: {
-      '/api/steam': {
-        target: 'https://steamcommunity.com',
+      '/api': {
+        target: 'http://localhost:3001',
         changeOrigin: true,
-        rewrite: path => path.replace(/^\/api\/steam/, ''),
       },
     },
   },

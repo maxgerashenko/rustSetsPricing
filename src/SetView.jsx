@@ -15,31 +15,10 @@ function parseDollars(str) {
   return isNaN(n) ? 0 : n
 }
 
-async function fetchItem(name) {
-  const encoded = encodeURIComponent(name)
-  const [priceRes, imgRes] = await Promise.allSettled([
-    fetch(`/api/steam/market/priceoverview/?appid=252490&currency=1&market_hash_name=${encoded}`),
-    fetch(`/api/steam/market/listings/252490/${encoded}/render?start=0&count=1&currency=1&format=json`),
-  ])
-
-  let price = null
-  if (priceRes.status === 'fulfilled' && priceRes.value.ok) {
-    const data = await priceRes.value.json()
-    if (data.success) price = data.lowest_price
-  }
-
-  let image = null
-  if (imgRes.status === 'fulfilled' && imgRes.value.ok) {
-    const data = await imgRes.value.json()
-    const match = data.results_html?.match(/economy\/image\/([^/]+)\//)
-    if (match) {
-      const hash = match[1]
-      image = `https://community.fastly.steamstatic.com//economy//image//${hash}//62fx62f%20202 1x, https://community.fastly.steamstatic.com//economy//image//${hash}//62fx62fdpx2x%20202 2x`
-    }
-  }
-
-  if (price === null) throw new Error('not found')
-  return { price, image }
+async function fetchItem(name, signal) {
+  const res = await fetch(`/api/item?name=${encodeURIComponent(name)}`, { signal })
+  if (!res.ok) throw new Error('server error')
+  return res.json()
 }
 
 export default function SetView({ rawList, onBack }) {
@@ -49,20 +28,21 @@ export default function SetView({ rawList, onBack }) {
     const names = parseItems(rawList)
     setItems(names.map(name => ({ name, status: 'loading', price: null, image: null })))
 
-    names.forEach((name, i) => {
-      setTimeout(async () => {
-        try {
-          const data = await fetchItem(name)
-          setItems(prev => prev.map(it =>
-            it.name === name ? { ...it, status: 'done', ...data } : it
-          ))
-        } catch {
-          setItems(prev => prev.map(it =>
-            it.name === name ? { ...it, status: 'error' } : it
-          ))
-        }
-      }, i * 600)
+    const controller = new AbortController()
+    names.forEach(async name => {
+      try {
+        const data = await fetchItem(name, controller.signal)
+        setItems(prev => prev.map(it =>
+          it.name === name ? { ...it, status: 'done', ...data } : it
+        ))
+      } catch (err) {
+        if (err.name === 'AbortError') return
+        setItems(prev => prev.map(it =>
+          it.name === name ? { ...it, status: 'error' } : it
+        ))
+      }
     })
+    return () => controller.abort()
   }, [rawList])
 
   const total = items.reduce((sum, it) => sum + parseDollars(it.price), 0)
@@ -75,8 +55,8 @@ export default function SetView({ rawList, onBack }) {
           <li key={it.name} className={styles.item}>
             <div className={styles.thumb}>
               {it.image
-                ? <a href={it.image.split(' ')[0]} target="_blank" rel="noreferrer">
-                    <img srcSet={it.image} alt={it.name} width={62} height={62} referrerPolicy="no-referrer" loading="eager" />
+                ? <a href={it.image} target="_blank" rel="noreferrer">
+                    <img src={it.image} alt={it.name} width={62} height={62} loading="eager" />
                   </a>
                 : <div className={styles.thumbPlaceholder} />
               }
@@ -91,7 +71,7 @@ export default function SetView({ rawList, onBack }) {
             </a>
             <span className={styles.price}>
               {it.status === 'loading' && <span className={styles.skeleton} />}
-              {it.status === 'done' && it.price}
+              {it.status === 'done' && (it.price ?? <span className={styles.na}>N/A</span>)}
               {it.status === 'error' && <span className={styles.na}>N/A</span>}
             </span>
           </li>

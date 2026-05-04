@@ -1,20 +1,7 @@
 import { useEffect, useState } from 'react'
 import styles from './ListView.module.css'
-import { MARKET_LISTINGS_BASE, API_ITEM, API_IMAGES } from './constants.js'
-
-const parseItems = raw => [...new Set(
-  raw.split(/[\n,]+/)
-    .map(val => val.trim())
-    .filter(Boolean)
-)]
-
-const parseDollars = str => {
-  if (str == null) return 0
-
-  const n = parseFloat(str.replace(/[^0-9.]/g, ''))
-
-  return isNaN(n) ? 0 : n
-}
+import { API_IMAGES, API_ITEM } from './constants.js'
+import { parseItems, parseDollars, getMarketUrl } from './utils.js'
 
 const fetchItem = async (name, signal) => {
   const res = await fetch(`${API_ITEM}?name=${encodeURIComponent(name)}`, { signal })
@@ -23,8 +10,6 @@ const fetchItem = async (name, signal) => {
 
   return res.json()
 }
-
-const getMarketUrl = name => `${MARKET_LISTINGS_BASE}${encodeURIComponent(name)}`
 
 const InspectIcon = () => (
   <svg width="15" height="15" viewBox="0 0 15 15" fill="none"><path d="M6 2H3a1 1 0 0 0-1 1v9a1 1 0 0 0 1 1h9a1 1 0 0 0 1-1V9M9 1h5v5M14 1L7.5 7.5" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round"/></svg>

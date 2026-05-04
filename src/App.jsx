@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import styles from './App.module.css'
+import InputView from './InputView.jsx'
 import ListView from './ListView.jsx'
-import SetView from './SetView.jsx'
 
 export default function App() {
   const [list, setList] = useState(null)
@@ -16,8 +16,8 @@ export default function App() {
         </h1>
 
         {list
-          ? <SetView rawList={list} onBack={() => setList(null)} />
-          : <ListView onSubmit={setList} />
+          ? <ListView rawList={list} onBack={() => setList(null)} />
+          : <InputView onSubmit={setList} />
         }
       </div>
     </div>

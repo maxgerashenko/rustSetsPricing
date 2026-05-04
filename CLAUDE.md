@@ -25,3 +25,11 @@ Item images are retrieved via the Steam Market search/item detail endpoints or b
 - Total cost of the set is summed and displayed
 - Steam Market rate-limits aggressively — requests must be throttled or batched carefully
 - Avoid using ! use == false or true instead
+- Use val as local variable for string functions instead of it
+- add empty line before return and expect 
+- use empty line before and after if return untill there a several in a row
+- use flat structure for if statemsnts instead of nested when posible
+- try to break the expectoin with if return early in functoin when posible to avoid if wrapping
+- use lambda functoin when funcstion are shor or straight forward 
+- use help functoin instead of computaions in template, try use 
+   template for represetation not computations  

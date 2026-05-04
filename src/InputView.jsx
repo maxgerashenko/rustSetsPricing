@@ -1,26 +1,47 @@
 import { useState } from 'react'
 import styles from './App.module.css'
 
+const cleanLines = text => text.split('\n').filter(val => val.trim()).join('\n')
+
+const CheckIcon = () => (
+  <svg width="15" height="15" viewBox="0 0 15 15" fill="none"><path d="M12.5 4L6 11.5 2.5 8" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/></svg>
+)
+
+const PasteIcon = () => (
+  <svg width="15" height="15" viewBox="0 0 15 15" fill="none"><rect x="5" y="1" width="8" height="10" rx="1.5" stroke="currentColor" strokeWidth="1.4"/><path d="M3 4H2a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1v-1" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round"/></svg>
+)
+
 export default function InputView({ onSubmit }) {
   const [value, setValue] = useState(() => localStorage.getItem('lastList') ?? '')
   const [pasted, setPasted] = useState(false)
 
-  function handleSubmit(e) {
+  const isEmpty = value.trim() === ''
+
+  const handleChange = e => setValue(e.target.value)
+
+  const handleTextareaPaste = e => {
     e.preventDefault()
-    if (!value.trim()) return
-    localStorage.setItem('lastList', value)
-    onSubmit?.(value)
+    setValue(cleanLines(e.clipboardData.getData('text')))
   }
 
-  async function handlePaste() {
+  const handlePaste = async () => {
     try {
       const text = await navigator.clipboard.readText()
-      setValue(text.split('\n').filter(l => l.trim()).join('\n'))
+      setValue(cleanLines(text))
       setPasted(true)
       setTimeout(() => setPasted(false), 1500)
     } catch {
       // user denied clipboard permission — ignore
     }
+  }
+
+  const handleSubmit = e => {
+    e.preventDefault()
+
+    if (isEmpty) return
+
+    localStorage.setItem('lastList', value)
+    onSubmit?.(value)
   }
 
   return (
@@ -31,29 +52,17 @@ export default function InputView({ onSubmit }) {
             className={styles.input}
             placeholder="Paste item names to get live Steam Market prices"
             value={value}
-            onChange={e => setValue(e.target.value)}
-            onPaste={e => {
-              e.preventDefault()
-              const text = e.clipboardData.getData('text')
-              setValue(text.split('\n').filter(l => l.trim()).join('\n'))
-            }}
+            onChange={handleChange}
+            onPaste={handleTextareaPaste}
             rows={7}
             spellCheck={false}
           />
           <div className={styles.actions}>
-            <button
-              className={styles.pasteBtn}
-              type="button"
-              onClick={handlePaste}
-            >
-              {pasted ? (
-                <svg width="15" height="15" viewBox="0 0 15 15" fill="none"><path d="M12.5 4L6 11.5 2.5 8" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/></svg>
-              ) : (
-                <svg width="15" height="15" viewBox="0 0 15 15" fill="none"><rect x="5" y="1" width="8" height="10" rx="1.5" stroke="currentColor" strokeWidth="1.4"/><path d="M3 4H2a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1v-1" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round"/></svg>
-              )}
+            <button className={styles.pasteBtn} type="button" onClick={handlePaste}>
+              {pasted ? <CheckIcon /> : <PasteIcon />}
               {pasted ? 'Pasted!' : 'Paste'}
             </button>
-            <button className={styles.button} type="submit" disabled={!value.trim()}>
+            <button className={styles.button} type="submit" disabled={isEmpty}>
               Get Prices
             </button>
           </div>

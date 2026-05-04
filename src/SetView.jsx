@@ -98,15 +98,6 @@ export default function SetView({ rawList, onBack }) {
         ))}
       </ul>
 
-      <button className={styles.inspectBtn} type="button" onClick={() => items.filter(it => it.image).forEach(it => window.open(it.image.split(' ')[0], '_blank'))}>
-        inspect-images
-        <span style={{ display: 'none' }}>
-          {items.filter(it => it.image).map(it => (
-            <img key={it.name} srcSet={it.image} alt={it.name} width={62} height={62} referrerPolicy="no-referrer" />
-          ))}
-        </span>
-      </button>
-
       {allDone && (
         <div className={styles.total}>
           <span>Total</span>
@@ -114,10 +105,22 @@ export default function SetView({ rawList, onBack }) {
         </div>
       )}
 
-      <button className={styles.back} onClick={onBack}>
-        <svg width="15" height="15" viewBox="0 0 15 15" fill="none"><path d="M6.5 3L2 7.5l4.5 4.5M2 7.5h11" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/></svg>
-        Edit list
-      </button>
+      <div className={styles.actions}>
+        <button className={styles.inspectBtn} type="button" onClick={() => items.filter(it => it.image).forEach(it => window.open(it.image.split(' ')[0], '_blank'))}>
+          <svg width="15" height="15" viewBox="0 0 15 15" fill="none"><path d="M6 2H3a1 1 0 0 0-1 1v9a1 1 0 0 0 1 1h9a1 1 0 0 0 1-1V9M9 1h5v5M14 1L7.5 7.5" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round"/></svg>
+          Inspect
+          <span style={{ display: 'none' }}>
+            {items.filter(it => it.image).map(it => (
+              <img key={it.name} srcSet={it.image} alt={it.name} width={62} height={62} referrerPolicy="no-referrer" />
+            ))}
+          </span>
+        </button>
+
+        <button className={styles.back} onClick={onBack}>
+          <svg width="15" height="15" viewBox="0 0 15 15" fill="none"><path d="M11.5 1.5a1.5 1.5 0 0 1 2 2L5 12l-3 1 1-3 8.5-8.5z" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round"/></svg>
+          Edit List
+        </button>
+      </div>
     </div>
   )
 }

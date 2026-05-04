@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import styles from './ListView.module.css'
-import { API_IMAGES, API_ITEM } from './constants.js'
+import { API_IMAGES, API_ITEM, CDN_IMAGE_BASE, CDN_IMAGE_SUFFIX } from './constants.js'
 import { parseItems, parseDollars, getMarketUrl } from './utils.js'
 
 const fetchItem = async (name, signal) => {
@@ -24,7 +24,7 @@ export default function ListView({ rawList, onBack }) {
 
   useEffect(() => {
     const names = parseItems(rawList)
-    setItems(names.map(name => ({ name, status: 'loading', price: null, url: null, hash: null })))
+    setItems(names.map(name => ({ name, status: 'loading', price: null, url: null, hash: null, blobUrl: null })))
     const controller = new AbortController()
 
     names.forEach(async name => {
@@ -33,6 +33,20 @@ export default function ListView({ rawList, onBack }) {
         setItems(prev => prev.map(val =>
           val.name === name ? { ...val, status: 'done', ...data } : val
         ))
+
+        if (data.hash) {
+          try {
+            const imgRes = await fetch(`${CDN_IMAGE_BASE}${data.hash}${CDN_IMAGE_SUFFIX}`, { referrerPolicy: 'no-referrer', signal: controller.signal })
+            if (imgRes.ok) {
+              const blobUrl = URL.createObjectURL(await imgRes.blob())
+              setItems(prev => prev.map(val =>
+                val.name === name ? { ...val, blobUrl } : val
+              ))
+            }
+          } catch {
+            // blob fetch failed — item stays without blobUrl
+          }
+        }
       } catch (err) {
         if (err.name === 'AbortError') return
 

@@ -87,6 +87,7 @@ async function fetchPrice(encoded) {
 
 const PRICE_TTL_MS = 24 * 60 * 60 * 1000
 const CACHE = process.env.CACHE === 'true'
+const DEV = process.env.NODE_ENV !== 'production'
 
 async function s3GetJson(key) {
   try {
@@ -146,36 +147,46 @@ app.get('/api/item', async (req, res) => {
   res.json({ price, hash, url: hash ? `${STEAM_CDN_BASE}${hash}${STEAM_CDN_SUFFIX}` : null })
 })
 
+const fetchAndStoreImage = async hash => {
+  const upstream = await fetch(`${STEAM_CDN_BASE}${hash}${STEAM_CDN_SUFFIX}`)
+
+  if (upstream.ok == false) return null
+
+  const buffer = Buffer.from(await upstream.arrayBuffer())
+
+  await s3.send(new PutObjectCommand({
+    Bucket: BUCKET,
+    Key: `${hash}.png`,
+    Body: buffer,
+    ContentType: 'image/png',
+  }))
+
+  console.log(`[S3] stored image ${hash.slice(0, 12)}…`)
+
+  return buffer
+}
+
 app.get('/api/images/:hash', async (req, res) => {
   const { hash } = req.params
   const key = `${hash}.png`
 
-  if (CACHE) {
-    try {
-      const obj = await s3.send(new GetObjectCommand({ Bucket: BUCKET, Key: key }))
-      res.setHeader('Content-Type', 'image/png')
-      res.setHeader('Cache-Control', 'public, max-age=86400')
-      obj.Body.pipe(res)
-      return
-    } catch (err) {
-      if (err.name !== 'NoSuchKey') console.error('S3 get:', err.message)
-    }
+  try {
+    const obj = await s3.send(new GetObjectCommand({ Bucket: BUCKET, Key: key }))
+    res.setHeader('Content-Type', 'image/png')
+    res.setHeader('Cache-Control', 'public, max-age=86400')
+    obj.Body.pipe(res)
+
+    if (DEV) fetchAndStoreImage(hash).catch(err => console.error('S3 bg write:', err.message))
+
+    return
+  } catch (err) {
+    if (err.name !== 'NoSuchKey') console.error('S3 get:', err.message)
   }
 
   try {
-    const upstream = await fetch(
-      `${STEAM_CDN_BASE}${hash}${STEAM_CDN_SUFFIX}`
-    )
-    if (upstream.ok == false) { res.status(502).end(); return }
+    const buffer = await fetchAndStoreImage(hash)
 
-    const buffer = Buffer.from(await upstream.arrayBuffer())
-
-    await s3.send(new PutObjectCommand({
-      Bucket: BUCKET,
-      Key: key,
-      Body: buffer,
-      ContentType: 'image/png',
-    }))
+    if (buffer == null) { res.status(502).end(); return }
 
     res.setHeader('Content-Type', 'image/png')
     res.setHeader('Cache-Control', 'public, max-age=86400')

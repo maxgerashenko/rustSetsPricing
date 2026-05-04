@@ -33,3 +33,4 @@ Item images are retrieved via the Steam Market search/item detail endpoints or b
 - use lambda functoin when funcstion are shor or straight forward 
 - use help functoin instead of computaions in template, try use 
    template for represetation not computations  
+- avoind single letter variables use short verstion as num, val, so on

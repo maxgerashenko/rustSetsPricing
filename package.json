@@ -6,6 +6,8 @@
   "scripts": {
     "dev": "concurrently \"node --watch server/index.js\" \"vite\"",
     "server": "node --watch server/index.js",
+    "s3": "minio server /Users/max/minio-data --address :9000 --console-address :9001",
+    "kill": "pkill -f 'server/index.js' || true",
     "build": "vite build",
     "preview": "vite preview"
   },

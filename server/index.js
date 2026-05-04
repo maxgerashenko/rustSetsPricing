@@ -1,5 +1,6 @@
 import 'dotenv/config'
 import express from 'express'
+import { STEAM_LISTINGS_BASE, STEAM_PRICE_API, STEAM_CDN_BASE, STEAM_CDN_SUFFIX } from './constants.js'
 import {
   S3Client,
   GetObjectCommand,
@@ -64,7 +65,7 @@ async function fetchPrice(encoded) {
     if (attempt > 1) await new Promise(r => setTimeout(r, 200))
     try {
       const res = await fetch(
-        `https://steamcommunity.com/market/priceoverview/?appid=252490&currency=1&market_hash_name=${encoded}`
+        `${STEAM_PRICE_API}?appid=252490&currency=1&market_hash_name=${encoded}`
       )
       if (res.ok) {
         const data = await res.json()
@@ -121,12 +122,12 @@ app.get('/api/item', async (req, res) => {
     if (cached?.hash == null) return
     if (Date.now() - (cached.cachedAt ?? 0) >= PRICE_TTL_MS) return
     console.log(`[Cache] hit — ${name}`)
-    return res.json({ price: cached.price, image: `https://community.fastly.steamstatic.com/economy/image/${cached.hash}/62fx62fdpx%202x` })
+    return res.json({ price: cached.price, hash: cached.hash, url: `${STEAM_CDN_BASE}${cached.hash}${STEAM_CDN_SUFFIX}` })
   }
 
   const [priceResult, renderRes] = await Promise.allSettled([
     fetchPrice(encoded),
-    steamFetch(`https://steamcommunity.com/market/listings/252490/${encoded}/render?start=0&count=1&currency=1&format=json`),
+    steamFetch(`${STEAM_LISTINGS_BASE}${encoded}/render?start=0&count=1&currency=1&format=json`),
   ])
 
   const price = priceResult.status === 'fulfilled' ? priceResult.value : null
@@ -142,7 +143,7 @@ app.get('/api/item', async (req, res) => {
     s3PutJson(cacheKey, { price, hash, cachedAt: Date.now() }).catch(() => {})
   }
 
-  res.json({ price, image: hash ? `https://community.fastly.steamstatic.com/economy/image/${hash}/62fx62fdpx%202x` : null })
+  res.json({ price, hash, url: hash ? `${STEAM_CDN_BASE}${hash}${STEAM_CDN_SUFFIX}` : null })
 })
 
 app.get('/api/images/:hash', async (req, res) => {
@@ -163,7 +164,7 @@ app.get('/api/images/:hash', async (req, res) => {
 
   try {
     const upstream = await fetch(
-      `https://community.fastly.steamstatic.com/economy/image/${hash}/62fx62fdpx%202x`
+      `${STEAM_CDN_BASE}${hash}${STEAM_CDN_SUFFIX}`
     )
     if (upstream.ok == false) { res.status(502).end(); return }
 

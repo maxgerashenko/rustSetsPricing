@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import styles from './ListView.module.css'
+import { MARKET_LISTINGS_BASE, API_ITEM, API_IMAGES } from './constants.js'
 
 const parseItems = raw => [...new Set(
   raw.split(/[\n,]+/)
@@ -16,16 +17,14 @@ const parseDollars = str => {
 }
 
 const fetchItem = async (name, signal) => {
-  const res = await fetch(`/api/item?name=${encodeURIComponent(name)}`, { signal })
+  const res = await fetch(`${API_ITEM}?name=${encodeURIComponent(name)}`, { signal })
 
   if (res.ok == false) throw new Error('server error')
 
   return res.json()
 }
 
-const getImageSrc = image => `/api/images/${image.match(/economy\/image\/([^/]+)\//)[1]}`
-
-const getMarketUrl = name => `https://steamcommunity.com/market/listings/252490/${encodeURIComponent(name)}`
+const getMarketUrl = name => `${MARKET_LISTINGS_BASE}${encodeURIComponent(name)}`
 
 const InspectIcon = () => (
   <svg width="15" height="15" viewBox="0 0 15 15" fill="none"><path d="M6 2H3a1 1 0 0 0-1 1v9a1 1 0 0 0 1 1h9a1 1 0 0 0 1-1V9M9 1h5v5M14 1L7.5 7.5" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round"/></svg>
@@ -40,7 +39,7 @@ export default function ListView({ rawList, onBack }) {
 
   useEffect(() => {
     const names = parseItems(rawList)
-    setItems(names.map(name => ({ name, status: 'loading', price: null, image: null })))
+    setItems(names.map(name => ({ name, status: 'loading', price: null, url: null, hash: null })))
     const controller = new AbortController()
 
     names.forEach(async name => {
@@ -65,8 +64,8 @@ export default function ListView({ rawList, onBack }) {
   const allDone = items.length > 0 && items.every(val => val.status !== 'loading')
 
   const openInspect = () => items
-    .filter(val => val.image)
-    .forEach(val => window.open(val.image, '_blank'))
+    .filter(val => val.url)
+    .forEach(val => window.open(val.url, '_blank'))
 
   return (
     <div className={styles.container}>
@@ -74,9 +73,9 @@ export default function ListView({ rawList, onBack }) {
         {items.map(val => (
           <li key={val.name} className={styles.item}>
             <div className={styles.thumb}>
-              {val.image
-                ? <a href={val.image} target="_blank" rel="noreferrer">
-                    <img src={getImageSrc(val.image)} alt={val.name} width={62} height={62} />
+              {val.url
+                ? <a href={val.url} target="_blank" rel="noreferrer">
+                    <img src={`${API_IMAGES}${val.hash}`} alt={val.name} width={62} height={62} />
                   </a>
                 : <div className={styles.thumbPlaceholder} />
               }

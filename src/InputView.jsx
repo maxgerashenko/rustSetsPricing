@@ -17,11 +17,11 @@ export default function InputView({ onSubmit }) {
 
   const isEmpty = value.trim() === ''
 
-  const handleChange = e => setValue(e.target.value)
+  const handleChange = evt => setValue(evt.target.value)
 
-  const handleTextareaPaste = e => {
-    e.preventDefault()
-    setValue(cleanLines(e.clipboardData.getData('text')))
+  const handleTextareaPaste = evt => {
+    evt.preventDefault()
+    setValue(cleanLines(evt.clipboardData.getData('text')))
   }
 
   const handlePaste = async () => {
@@ -35,8 +35,8 @@ export default function InputView({ onSubmit }) {
     }
   }
 
-  const handleSubmit = e => {
-    e.preventDefault()
+  const handleSubmit = evt => {
+    evt.preventDefault()
 
     if (isEmpty) return
 

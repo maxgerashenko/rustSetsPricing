@@ -40,7 +40,7 @@ function steamFetch(url) {
     steamRequestCount++
     console.log(`[Steam #${steamRequestCount}] ${url}`)
     const res = await fetch(url)
-    await new Promise(r => setTimeout(r, 300))
+    await new Promise(resolve => setTimeout(resolve, 300))
     return res
   })
   steamQueue = ticket.catch(() => {})
@@ -59,10 +59,10 @@ async function fetchPrice(encoded) {
   }
 
   const gap = lastPriceSuccessAt + 600 - Date.now()
-  if (gap > 0) await new Promise(r => setTimeout(r, gap))
+  if (gap > 0) await new Promise(resolve => setTimeout(resolve, gap))
 
   for (let attempt = 1; attempt <= 3; attempt++) {
-    if (attempt > 1) await new Promise(r => setTimeout(r, 200))
+    if (attempt > 1) await new Promise(resolve => setTimeout(resolve, 200))
     try {
       const res = await fetch(
         `${STEAM_PRICE_API}?appid=252490&currency=1&market_hash_name=${encoded}`

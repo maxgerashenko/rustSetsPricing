@@ -77,21 +77,10 @@ export default function SetView({ rawList, onBack }) {
         ))}
       </ul>
 
-      <button className={styles.inspectBtn} type="button" onClick={() => items.filter(it => it.image).forEach(it => window.open(it.image, '_blank'))}>
-        inspect-images
-        <span style={{ display: 'none' }}>
-          {items.filter(it => it.image).map(it => (
-            <img key={it.name} srcSet={it.image} alt={it.name} width={62} height={62} referrerPolicy="no-referrer" />
-          ))}
-        </span>
-      </button>
-
-      {allDone && (
-        <div className={styles.total}>
-          <span>Total</span>
-          <span>${total.toFixed(2)}</span>
-        </div>
-      )}
+      <div className={styles.total}>
+        <span>Total</span>
+        {allDone ? <span>${total.toFixed(2)}</span> : <span className={styles.skeleton} />}
+      </div>
 
       <div className={styles.actions}>
         <button className={styles.inspectBtn} type="button" onClick={() => items.filter(it => it.image).forEach(it => window.open(it.image.split(' ')[0], '_blank'))}>

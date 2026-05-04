@@ -1,6 +1,6 @@
 import 'dotenv/config'
 import express from 'express'
-import { STEAM_LISTINGS_BASE, STEAM_PRICE_API, STEAM_CDN_BASE, STEAM_CDN_SUFFIX } from './constants.js'
+import { STEAM_SEARCH_API, STEAM_PRICE_API, STEAM_CDN_BASE, STEAM_CDN_SUFFIX } from './constants.js'
 import {
   S3Client,
   GetObjectCommand,
@@ -85,30 +85,6 @@ async function fetchPrice(encoded) {
   return null
 }
 
-const PRICE_TTL_MS = 24 * 60 * 60 * 1000
-const CACHE = process.env.CACHE === 'true'
-const DEV = process.env.NODE_ENV !== 'production'
-
-async function s3GetJson(key) {
-  try {
-    const obj = await s3.send(new GetObjectCommand({ Bucket: BUCKET, Key: key }))
-    const chunks = []
-    for await (const chunk of obj.Body) chunks.push(chunk)
-    return JSON.parse(Buffer.concat(chunks).toString())
-  } catch {
-    return null
-  }
-}
-
-async function s3PutJson(key, value) {
-  await s3.send(new PutObjectCommand({
-    Bucket: BUCKET,
-    Key: key,
-    Body: JSON.stringify(value),
-    ContentType: 'application/json',
-  }))
-}
-
 const app = express()
 
 app.get('/api/item', async (req, res) => {
@@ -116,32 +92,19 @@ app.get('/api/item', async (req, res) => {
   if (name == null) { res.status(400).end(); return }
 
   const encoded = encodeURIComponent(name)
-  const cacheKey = `items/${encoded}.json`
 
-  if (CACHE) {
-    const cached = await s3GetJson(cacheKey)
-    if (cached?.hash == null) return
-    if (Date.now() - (cached.cachedAt ?? 0) >= PRICE_TTL_MS) return
-    console.log(`[Cache] hit — ${name}`)
-    return res.json({ price: cached.price, hash: cached.hash, url: `${STEAM_CDN_BASE}${cached.hash}${STEAM_CDN_SUFFIX}` })
-  }
-
-  const [priceResult, renderRes] = await Promise.allSettled([
+  const [priceResult, searchRes] = await Promise.allSettled([
     fetchPrice(encoded),
-    steamFetch(`${STEAM_LISTINGS_BASE}${encoded}/render?start=0&count=1&currency=1&format=json`),
+    steamFetch(`${STEAM_SEARCH_API}?appid=252490&query=${encoded}&norender=1&count=5`),
   ])
 
   const price = priceResult.status === 'fulfilled' ? priceResult.value : null
 
   let hash = null
-  if (renderRes.status === 'fulfilled' && renderRes.value.ok) {
-    const data = await renderRes.value.json()
-    const match = data.results_html?.match(/economy\/image\/([^/]+)\//)
-    if (match) hash = match[1]
-  }
-
-  if (hash && CACHE) {
-    s3PutJson(cacheKey, { price, hash, cachedAt: Date.now() }).catch(() => {})
+  if (searchRes.status === 'fulfilled' && searchRes.value.ok) {
+    const data = await searchRes.value.json()
+    const result = data.results?.find(val => val.hash_name === name)
+    if (result) hash = result.asset_description.icon_url
   }
 
   res.json({ price, hash, url: hash ? `${STEAM_CDN_BASE}${hash}${STEAM_CDN_SUFFIX}` : null })
@@ -175,8 +138,6 @@ app.get('/api/images/:hash', async (req, res) => {
     res.setHeader('Content-Type', 'image/png')
     res.setHeader('Cache-Control', 'public, max-age=86400')
     obj.Body.pipe(res)
-
-    if (DEV) fetchAndStoreImage(hash).catch(err => console.error('S3 bg write:', err.message))
 
     return
   } catch (err) {

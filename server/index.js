@@ -80,6 +80,21 @@ async function fetchPrice(encoded) {
   return null
 }
 
+const PRICE_TTL = 4 * 60 * 60 * 1000
+const priceCache = new Map()
+
+function getCachedPrice(name) {
+  const entry = priceCache.get(name)
+  if (entry == null) return null
+  if (Date.now() > entry.expiresAt) { priceCache.delete(name); return null }
+
+  return entry.price
+}
+
+function setCachedPrice(name, price) {
+  priceCache.set(name, { price, expiresAt: Date.now() + PRICE_TTL })
+}
+
 const app = express()
 
 app.get('/api/item', async (req, res) => {
@@ -88,8 +103,9 @@ app.get('/api/item', async (req, res) => {
 
   const encoded = encodeURIComponent(name)
 
+  const cached = getCachedPrice(name)
   const [priceResult, searchRes] = await Promise.allSettled([
-    fetchPrice(encoded),
+    cached != null ? Promise.resolve(cached) : fetchPrice(encoded).then(val => { if (val != null) setCachedPrice(name, val); return val }),
     steamFetch(`${STEAM_SEARCH_API}?appid=252490&query=${encoded}&norender=1&count=5`),
   ])
 
@@ -102,6 +118,7 @@ app.get('/api/item', async (req, res) => {
     if (result) hash = result.asset_description.icon_url
   }
 
+  res.setHeader('Cache-Control', 'public, max-age=14400')
   res.json({ price, hash, url: hash ? `/api/images/${hash}` : null })
 })
 

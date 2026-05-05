@@ -1,71 +1,50 @@
 # TODO
 
 ## Done
-- [x] Image proxy via S3/MinIO — `/api/images/:hash` caches Steam CDN images in MinIO
-- [x] `fetchAndStoreImage` extracted to `server/imageCache.js` with injectable deps and 3 passing tests
-- [x] Price TTL caching (4h) in PostgreSQL `item_cache` table — persists across restarts
-- [x] Smart cache logic — skips Steam API entirely on full cache hit, fetches only stale fields on partial hit
-- [x] `Cache-Control: public, max-age=14400` on `/api/item` for browser-side caching
-- [x] `POST /api/sets` and `GET /api/sets/:id` — backend endpoints complete
-- [x] Docker Compose — separate containers for app, Postgres 16, MinIO; health checks on db/minio
-- [x] Frontend Docker dev — `Dockerfile.dev` + `frontend` service with bind mount HMR; proxy via `VITE_PROXY_TARGET`
-- [x] Add `[data-theme="light"]` palette
-- [x] Paste button reads clipboard, cleans, updates textarea, shows "Pasted!" feedback (user clicks "Get Prices" to proceed)
-- [x] Compute `lines` via `split(/[\n,]+/)` (live comma-separated parsing)
-- [x] Disable submit when `lines.length === 0`
-- [x] Action row uses ghost (`Paste`) + primary (`Get Prices` with `→` arrow icon)
 
-## Design Redesign — Junkpile spec ([design/README.md](design/README.md))
+### Core Features
+- [x] Input screen with live comma-separated line parsing
+- [x] Paste button — clipboard read, auto-clean, user submits via "Get Prices"
+- [x] Results screen with meta strip (resolved/unknown count, USD/EUR toggle), stats strip, total bar, action buttons
+- [x] List view components: ListInfo, ItemsList, ListControls with proper separation of concerns
+- [x] 3-action button row: Inspect (Steam Market links), Copy (total to clipboard), Edit List
 
-The design upgrades a 2-screen flow (Input → List) to a 3-screen flow (Input → Results → Edit) with new tokens, components, and behaviors. Below is the diff between the current implementation and the new design.
+### Backend & Caching
+- [x] Image proxy via S3/MinIO — `/api/images/:hash` endpoint caches Steam CDN images
+- [x] `fetchAndStoreImage` function with injectable S3 and fetch dependencies, 3 passing tests
+- [x] Price TTL caching (4h) in PostgreSQL — persists across restarts, smart partial/full hits
+- [x] `Cache-Control: public, max-age=14400` on `/api/item` for browser caching
+- [x] `POST /api/sets` and `GET /api/sets/:id` backend endpoints
 
+### Infrastructure & Organization
+- [x] Docker Compose with app, Postgres 16, MinIO containers; health checks on db/minio
+- [x] Frontend Docker dev setup — HMR via bind mount, Vite proxy to backend
+- [x] File structure reorganized: `src/shared/` (icons, utils, constants), `src/views/input_view/`, `src/views/list_view/`
+- [x] Design tokens (oklch color palette, typography, spacing) with light/dark theme support
 
-### Screen 2 — Results ([src/ListView.jsx](src/ListView.jsx))
-- [x] Meta strip above card: green pulse dot + `<N> resolved · <N> unknown`; right-side USD/EUR segmented toggle
-- [x] Currency state with EUR conversion (`× 0.92`, swap `$ → €`); `tabular-nums` on prices/totals
-- [x] 44×44 image thumb sizing/border/radius (kept real Steam images instead of monogram)
-- [x] 3-up stat strip: `Items` / `Top Item` / `Avg` (24h Δ deferred — needs trend data)
-- [x] Total bar: uppercase mono `TOTAL` label + large mono accent-colored amount, top border `--line-strong`, `--bg-elev-2`
-- [x] 3-col action row: Inspect (opens each item on Steam Market) / Copy (`Junkpile total: $X.XX (N items)`, "Copied" feedback 1400ms) / Edit List (primary)
-- [x] Footer link: `← New list`
-- [x] Unmatched item: name in `--text-faint`, `Unmatched` mono caption, italic `not found` price
-- [ ] 24h trend delta per row: `▲` green / `▼` red — needs API support
-- [ ] Row meta: slot caption (`Head`, `Chest`, …) — needs slot data from API
-- [ ] Edit List action — currently shares onBack with `← New list`; needs dedicated Edit screen
+### Animations & Styling
+- [x] Screen entry fadeIn animation (320ms ease, 6px translateY)
+- [x] Skeleton shimmer (1.4s linear infinite), pulse dot (1.6s opacity), button feedback
 
-### Screen 3 — Edit (NEW — does not exist today)
-- [ ] Create `EditScreen`: 4-col edit rows (handle · thumb · `<input>` · `×`), `+ Add item` dashed footer, Cancel/`Save & Reprice` action row
-- [ ] Drag-and-drop reorder via `⋮⋮` handle; drop target highlights with `--accent-soft`
-- [ ] `Enter` on input adds new empty row below; `Backspace` on empty input removes the row
-- [ ] State machine update in `App`: `'input' | 'results' | 'edit'` (currently boolean `list`/`!list`)
-- [ ] Edit returns text → re-prices via Results
-- [ ] Persist edits back through the same `POST /api/sets` flow
+## Remaining Work
 
-### Animations
-- [x] Screen entry fadeIn 320ms ease, 6px translateY
-- [x] Skeleton shimmer 1.4s linear infinite
-- [x] Pulse dot 1.6s ease-in-out, opacity 0.5↔1
-- [x] Buttons: background 120ms ease, `:active` translateY(1px)
+### Screen 3 — Edit (Priority)
+- [ ] Create `EditScreen` component: 4-col edit rows (drag handle · thumb · input · delete), add item footer, Cancel/Save actions
+- [ ] Drag-and-drop reorder via handle; drop target highlights
+- [ ] Keyboard support: `Enter` adds row below, `Backspace` on empty removes row
+- [ ] Update App state machine: `'input' | 'results' | 'edit'` (currently boolean `list`/`!list`)
+- [ ] Edit flow: save edits → reprice items → return to Results
 
-### Items shape
-- Design row shape: `{ id, raw, resolved: { key, name, slot, price, trend } | null }`
-- Current row shape: `{ name, status, price, url, hash }`
-- [ ] Backend: extend `/api/item` to return `slot` and `trend` (24h delta) — or compute trend client-side from cached price history
-- [ ] Frontend: adopt `{ id, raw, resolved }` shape so unmatched items render distinctly
+### API Extensions
+- [ ] Extend `/api/item` to return `slot` (e.g., `Head`, `Chest`) and `trend` (24h delta)
+- [ ] Wire `POST /api/sets` call from Results screen to persist item combinations
+- [ ] Add `GET /api/sets/:id` to load saved sets
 
+### Future Features
+- [ ] 24h trend delta per row: `▲` green / `▼` red (requires `trend` API field)
+- [ ] Show price as stale when cache TTL nearing expiry
+- [ ] Load previous sets from `GET /api/sets`
 
-## Backend
-- [ ] Wire `POST /api/sets` — call from frontend when user submits item list
-- [ ] `GET /api/sets` — list all saved sets
-- [ ] `DELETE /api/sets/:id` — delete a saved set
-- [ ] Tests for `/api/sets` and DB item cache
-- [ ] Extend `/api/item` response with `slot` and 24h `trend` fields (needed by Results screen)
-
-## Frontend
-- [ ] Save set button — sends item list to `POST /api/sets`
-- [ ] Load saved sets — list and restore previous inputs
-- [ ] Show price as stale when TTL is near expiry
-
-## Ops
+### Ops
 - [ ] Add `.env.example` with all required vars documented
-- [ ] Add `server` container healthcheck to docker-compose (currently only postgres/minio have one)
+- [ ] Add `server` container healthcheck to docker-compose

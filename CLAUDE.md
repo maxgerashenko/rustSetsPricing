@@ -34,3 +34,4 @@ Keep responses under 1500 tokens. If a complete answer requires more, stop and a
 - General: [rules/guidelines.md](rules/guidelines.md)
 - Frontend (`src/`): [rules/frontend.md](rules/frontend.md)
 - Backend (`server/`): [rules/backend.md](rules/backend.md)
+- TODO management: [rules/todo.md](rules/todo.md)

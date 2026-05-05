@@ -1,0 +1,328 @@
+.container {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+/* Meta strip above the card */
+.metaStrip {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+}
+
+.metaLeft {
+  display: flex;
+  gap: 14px;
+  align-items: center;
+}
+
+.pulse {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--good);
+  box-shadow: 0 0 8px var(--good);
+  animation: pulse 1.6s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 0.5; }
+  50% { opacity: 1; }
+}
+
+/* Segmented currency toggle */
+.seg {
+  display: inline-flex;
+  background: var(--bg-elev-2);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 3px;
+  gap: 2px;
+}
+
+.seg button {
+  appearance: none;
+  background: transparent;
+  border: 0;
+  color: var(--text-faint);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  padding: 6px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+  text-transform: uppercase;
+  transition: background 120ms ease, color 120ms ease;
+}
+
+.segOn {
+  background: var(--bg-elev) !important;
+  color: var(--text) !important;
+}
+
+/* Card */
+.card {
+  width: 100%;
+  background: var(--bg-elev);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-card);
+  overflow: hidden;
+  box-shadow: 0 30px 60px -30px rgba(0, 0, 0, 0.6);
+}
+
+/* Item list */
+.list {
+  list-style: none;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.item {
+  display: grid;
+  grid-template-columns: 44px 1fr auto;
+  align-items: center;
+  gap: 16px;
+  padding: 12px 18px;
+  border-top: 1px solid var(--line);
+  transition: opacity 120ms ease;
+}
+
+.item:first-child {
+  border-top: 0;
+}
+
+.itemLoading {
+  opacity: 0.6;
+}
+
+.thumb {
+  width: 44px;
+  height: 44px;
+  border-radius: 8px;
+  border: 1px solid var(--line);
+  background: var(--bg-elev-2);
+  overflow: hidden;
+  display: grid;
+  place-items: center;
+}
+
+.thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.thumbPlaceholder {
+  width: 100%;
+  height: 100%;
+  background-image: repeating-linear-gradient(
+    135deg,
+    transparent 0 6px,
+    oklch(from var(--text) l c h / 0.05) 6px 7px
+  );
+}
+
+.name {
+  font-size: 15px;
+  color: var(--text);
+  font-weight: 500;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.name a {
+  color: inherit;
+  text-decoration: none;
+  transition: color 120ms ease;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.name a:hover {
+  color: var(--accent);
+}
+
+.meta {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+}
+
+.itemUnresolved .name a {
+  color: var(--text-faint);
+}
+
+.price {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text);
+  text-align: right;
+}
+
+.notFound {
+  color: var(--text-faint);
+  font-style: italic;
+  font-size: 12px;
+}
+
+/* Skeleton shimmer */
+.skeleton {
+  display: inline-block;
+  background: linear-gradient(
+    90deg,
+    var(--bg-elev-2) 0%,
+    oklch(from var(--text) l c h / 0.06) 50%,
+    var(--bg-elev-2) 100%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.4s linear infinite;
+  border-radius: 6px;
+}
+
+@keyframes shimmer {
+  from { background-position: 200% 0; }
+  to { background-position: -200% 0; }
+}
+
+/* Stats strip */
+.stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1px;
+  background: var(--line);
+  border-top: 1px solid var(--line);
+}
+
+.stat {
+  background: var(--bg-elev);
+  padding: 12px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.statKey {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+}
+
+.statVal {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  font-size: 14px;
+  color: var(--text);
+  font-weight: 600;
+}
+
+/* Total bar */
+.total {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  padding: 16px 18px;
+  border-top: 1px solid var(--line-strong);
+  background: var(--bg-elev-2);
+}
+
+.totalLabel {
+  font-size: 13px;
+  color: var(--text-dim);
+  font-family: var(--font-mono);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.totalAmount {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--accent);
+}
+
+/* 3-col action row */
+.actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  border-top: 1px solid var(--line);
+}
+
+.actionBtn,
+.actionBtnPrimary {
+  appearance: none;
+  border: 0;
+  font-family: var(--font-ui);
+  font-size: 14px;
+  font-weight: 600;
+  padding: 16px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  cursor: pointer;
+  letter-spacing: 0.01em;
+  transition: background 120ms ease, color 120ms ease, transform 120ms ease;
+}
+
+.actionBtn {
+  background: var(--bg-elev-2);
+  color: var(--text-dim);
+  border-right: 1px solid var(--line);
+}
+
+.actionBtn:hover {
+  background: var(--bg-elev);
+  color: var(--text);
+}
+
+.actionBtnPrimary {
+  background: var(--accent);
+  color: #fff;
+}
+
+.actionBtnPrimary:hover {
+  background: oklch(from var(--accent) calc(l + 0.04) c h);
+}
+
+.actionBtn:active,
+.actionBtnPrimary:active {
+  transform: translateY(1px);
+}
+
+/* Footer ← New list */
+.foothint {
+  align-self: center;
+  background: none;
+  border: 0;
+  cursor: pointer;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+  padding: 8px 12px;
+  transition: color 120ms ease;
+}
+
+.foothint:hover {
+  color: var(--accent);
+}

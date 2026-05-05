@@ -9,3 +9,5 @@
 - Use lambda functions when functions are short or straightforward
 - Use helper functions instead of computations in templates — templates are for representation, not logic
 - Avoid single-letter variables — use short descriptive names: `num`, `val`, `evt`, etc.
+- File names use lowercase with underscores: `list_view.jsx`, `image_cache.js`
+- Class / component names use PascalCase: `ListView`, `ItemsList`, `App`

@@ -3,7 +3,7 @@ import { createHash } from 'crypto'
 import express from 'express'
 import { STEAM_SEARCH_API, STEAM_PRICE_API } from './constants.js'
 import { S3Client, GetObjectCommand, CreateBucketCommand, HeadBucketCommand } from '@aws-sdk/client-s3'
-import { fetchAndStoreImage } from './imageCache.js'
+import { fetchAndStoreImage } from './image_cache.js'
 import { pool, initDb } from './db.js'
 import { BROWSER_CACHE_ENABLED } from './flags.js'
 

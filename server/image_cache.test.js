@@ -1,6 +1,6 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
-import { fetchAndStoreImage } from './imageCache.js'
+import { fetchAndStoreImage } from './image_cache.js'
 
 const HASH = 'abc123def456xyz'
 const IMAGE_BYTES = Buffer.from('fake-image-data')

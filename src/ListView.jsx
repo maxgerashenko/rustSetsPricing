@@ -27,23 +27,35 @@ export default function ListView({ rawList, onBack }) {
     setItems(names.map(name => ({ name, status: 'loading', price: null, url: null, hash: null })))
     const controller = new AbortController()
 
-    names.forEach(async name => {
-      try {
-        const data = await fetchItem(name, controller.signal)
-        setItems(prev => prev.map(val =>
-          val.name === name ? { ...val, status: 'done', ...data } : val
-        ))
-      } catch (err) {
-        if (err.name === 'AbortError') return
+    const run = async () => {
+      await fetch('/api/sets', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ items: names }),
+        signal: controller.signal,
+      }).catch(() => {})
 
-        setItems(prev => prev.map(val =>
-          val.name === name ? { ...val, status: 'error' } : val
-        ))
-      }
-    })
+      names.forEach(async name => {
+        try {
+          const data = await fetchItem(name, controller.signal)
+          setItems(prev => prev.map(val =>
+            val.name === name ? { ...val, status: 'done', ...data } : val
+          ))
+        } catch (err) {
+          if (err.name === 'AbortError') return
+
+          setItems(prev => prev.map(val =>
+            val.name === name ? { ...val, status: 'error' } : val
+          ))
+        }
+      })
+    }
+
+    run()
 
     return () => controller.abort()
   }, [rawList])
+
 
   const total = items.reduce((sum, val) => sum + parseDollars(val.price), 0)
   const allDone = items.length > 0 && items.every(val => val.status !== 'loading')

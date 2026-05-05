@@ -11,14 +11,15 @@ export const pool = new Pool({
 
 export async function initDb() {
   await pool.query(`
-    CREATE TABLE IF NOT EXISTS item_cache (
+    CREATE TABLE IF NOT EXISTS items (
       name TEXT PRIMARY KEY,
       price TEXT,
       hash TEXT,
       price_expires_at TIMESTAMPTZ
     );
-    CREATE TABLE IF NOT EXISTS sets (
+    CREATE TABLE IF NOT EXISTS items_sets (
       id SERIAL PRIMARY KEY,
+      set_hash TEXT NOT NULL UNIQUE,
       items TEXT[] NOT NULL,
       created_at TIMESTAMPTZ DEFAULT NOW()
     );

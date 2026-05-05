@@ -1,4 +1,5 @@
 import 'dotenv/config'
+import { createHash } from 'crypto'
 import express from 'express'
 import { STEAM_SEARCH_API, STEAM_PRICE_API } from './constants.js'
 import { S3Client, GetObjectCommand, CreateBucketCommand, HeadBucketCommand } from '@aws-sdk/client-s3'
@@ -93,7 +94,7 @@ app.get('/api/item', async (req, res) => {
   const encoded = encodeURIComponent(name)
 
   const { rows } = await pool.query(
-    'SELECT price, hash, price_expires_at FROM item_cache WHERE name = $1',
+    'SELECT price, hash, price_expires_at FROM items WHERE name = $1',
     [name]
   )
   const cached = rows[0] ?? null
@@ -141,7 +142,7 @@ app.get('/api/item', async (req, res) => {
     .join(',\n       ')
 
   await pool.query(
-    `INSERT INTO item_cache (${fields.join(', ')})
+    `INSERT INTO items (${fields.join(', ')})
      VALUES (${placeholders})
      ON CONFLICT (name) DO UPDATE SET
        ${updateSet}`,
@@ -156,16 +157,20 @@ app.post('/api/sets', async (req, res) => {
   const { items } = req.body
   if (Array.isArray(items) == false || items.length === 0) { res.status(400).end(); return }
 
-  const { rows } = await pool.query(
-    'INSERT INTO sets (items) VALUES ($1) RETURNING id, created_at',
-    [items]
+  const sorted = [...items].sort()
+  const buf = createHash('sha256').update(sorted.join('\0')).digest()
+  const setHash = buf.readBigUInt64BE(0).toString(16).padStart(16, '0')
+
+  await pool.query(
+    'INSERT INTO items_sets (set_hash, items) VALUES ($1, $2) ON CONFLICT (set_hash) DO NOTHING',
+    [setHash, sorted]
   )
 
-  res.status(201).json(rows[0])
+  res.json({ set_hash: setHash })
 })
 
-app.get('/api/sets/:id', async (req, res) => {
-  const { rows } = await pool.query('SELECT * FROM sets WHERE id = $1', [req.params.id])
+app.get('/api/sets/:hash', async (req, res) => {
+  const { rows } = await pool.query('SELECT * FROM items_sets WHERE set_hash = $1', [req.params.hash])
   if (rows.length === 0) { res.status(404).end(); return }
 
   res.json(rows[0])

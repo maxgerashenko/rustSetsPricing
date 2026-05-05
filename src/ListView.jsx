@@ -27,71 +27,90 @@ export default function ListView({ rawList, onBack }) {
     setItems(names.map(name => ({ name, status: 'loading', price: null, url: null, hash: null })))
     const controller = new AbortController()
 
-    names.forEach(async name => {
-      try {
-        const data = await fetchItem(name, controller.signal)
-        setItems(prev => prev.map(val =>
-          val.name === name ? { ...val, status: 'done', ...data } : val
-        ))
-      } catch (err) {
-        if (err.name === 'AbortError') return
+    const run = async () => {
+      const hashes = []
 
-        setItems(prev => prev.map(val =>
-          val.name === name ? { ...val, status: 'error' } : val
-        ))
-      }
-    })
+      await Promise.all(names.map(async (name, idx) => {
+        try {
+          const data = await fetchItem(name, controller.signal)
+          hashes[idx] = data.hash
+          setItems(prev => prev.map(val =>
+            val.name === name ? { ...val, status: 'done', ...data } : val
+          ))
+        } catch (err) {
+          if (err.name === 'AbortError') return
+
+          setItems(prev => prev.map(val =>
+            val.name === name ? { ...val, status: 'error' } : val
+          ))
+        }
+      }))
+
+      const validHashes = hashes.filter(hash => hash != null)
+      if (validHashes.length === 0) return
+
+      await fetch('/api/sets', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ items: names, hashes: validHashes }),
+        signal: controller.signal,
+      }).catch(() => {})
+    }
+
+    run()
 
     return () => controller.abort()
   }, [rawList])
+
 
   const total = items.reduce((sum, val) => sum + parseDollars(val.price), 0)
   const allDone = items.length > 0 && items.every(val => val.status !== 'loading')
 
   const openInspect = () => items
-    .filter(val => val.url)
-    .forEach(val => window.open(val.url, '_blank'))
+    .forEach(val => window.open(getMarketUrl(val.name), '_blank'))
 
   return (
     <div className={styles.container}>
-      <ul className={styles.list}>
-        {items.map(val => (
-          <li key={val.name} className={styles.item}>
-            <div className={styles.thumb}>
-              {val.url
-                ? <a href={val.url} target="_blank" rel="noreferrer">
-                    <img src={`${API_IMAGES}${val.hash}`} alt={val.name} width={62} height={62} />
-                  </a>
-                : <div className={styles.thumbPlaceholder} />
-              }
-            </div>
-            <a className={styles.name} href={getMarketUrl(val.name)} target="_blank" rel="noreferrer">
-              {val.name}
-            </a>
-            <span className={styles.price}>
-              {val.status === 'loading' && <span className={styles.skeleton} />}
-              {val.status === 'done' && (val.price ?? <span className={styles.na}>N/A</span>)}
-              {val.status === 'error' && <span className={styles.na}>N/A</span>}
-            </span>
-          </li>
-        ))}
-      </ul>
+      <div className={styles.card}>
+        <ul className={styles.list}>
+          {items.map(val => (
+            <li key={val.name} className={styles.item}>
+              <div className={styles.thumb}>
+                {val.url
+                  ? <a href={val.url} target="_blank" rel="noreferrer">
+                      <img src={`${API_IMAGES}${val.hash}`} alt={val.name} width={62} height={62} />
+                    </a>
+                  : <div className={styles.thumbPlaceholder} />
+                }
+              </div>
+              <a className={styles.name} href={getMarketUrl(val.name)} target="_blank" rel="noreferrer">
+                {val.name}
+              </a>
+              <span className={styles.price}>
+                {val.status === 'loading' && <span className={styles.skeleton} />}
+                {val.status === 'done' && (val.price ?? <span className={styles.na}>N/A</span>)}
+                {val.status === 'error' && <span className={styles.na}>N/A</span>}
+              </span>
+            </li>
+          ))}
+        </ul>
 
-      <div className={styles.total}>
-        <span>Total</span>
-        {allDone ? <span>${total.toFixed(2)}</span> : <span className={styles.skeleton} />}
-      </div>
+        <div className={styles.total}>
+          <span>Total</span>
+          {allDone ? <span>${total.toFixed(2)}</span> : <span className={styles.skeleton} />}
+        </div>
 
-      <div className={styles.actions}>
-        <button className={styles.inspectBtn} type="button" onClick={openInspect}>
-          <InspectIcon />
-          Inspect
-        </button>
+        <div className={styles.actions}>
+          <button className={styles.inspectBtn} type="button" onClick={openInspect}>
+            <InspectIcon />
+            Inspect
+          </button>
 
-        <button className={styles.back} onClick={onBack}>
-          <EditIcon />
-          Edit List
-        </button>
+          <button className={styles.back} onClick={onBack}>
+            <EditIcon />
+            Edit List
+          </button>
+        </div>
       </div>
     </div>
   )

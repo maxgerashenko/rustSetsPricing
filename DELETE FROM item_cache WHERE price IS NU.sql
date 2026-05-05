@@ -1,0 +1,1 @@
+DELETE FROM item_cache WHERE price IS NULL AND hash IS NULL;

@@ -1,13 +1,11 @@
 import 'dotenv/config'
+import { createHash } from 'crypto'
 import express from 'express'
-import { STEAM_SEARCH_API, STEAM_PRICE_API, STEAM_CDN_BASE, STEAM_CDN_SUFFIX } from './constants.js'
-import {
-  S3Client,
-  GetObjectCommand,
-  PutObjectCommand,
-  CreateBucketCommand,
-  HeadBucketCommand,
-} from '@aws-sdk/client-s3'
+import { STEAM_SEARCH_API, STEAM_PRICE_API } from './constants.js'
+import { S3Client, GetObjectCommand, CreateBucketCommand, HeadBucketCommand } from '@aws-sdk/client-s3'
+import { fetchAndStoreImage } from './imageCache.js'
+import { pool, initDb } from './db.js'
+import { BROWSER_CACHE_ENABLED } from './flags.js'
 
 const s3 = new S3Client({
   endpoint: process.env.S3_ENDPOINT,
@@ -21,6 +19,7 @@ const s3 = new S3Client({
 
 const BUCKET = process.env.S3_BUCKET ?? 'rust-items'
 const PORT = process.env.SERVER_PORT ?? 3001
+const PRICE_TTL_MS = 4 * 60 * 60 * 1000
 
 async function ensureBucket() {
   try {
@@ -86,6 +85,7 @@ async function fetchPrice(encoded) {
 }
 
 const app = express()
+app.use(express.json())
 
 app.get('/api/item', async (req, res) => {
   const { name } = req.query
@@ -93,41 +93,102 @@ app.get('/api/item', async (req, res) => {
 
   const encoded = encodeURIComponent(name)
 
+  const { rows } = await pool.query(
+    'SELECT price, hash, price_expires_at FROM items WHERE name = $1',
+    [name]
+  )
+  const cached = rows[0] ?? null
+  const priceValid = cached != null && new Date(cached.price_expires_at) > new Date()
+  const hashValid = cached?.hash != null
+
+  if (priceValid && hashValid) {
+    if (BROWSER_CACHE_ENABLED) res.setHeader('Cache-Control', 'public, max-age=14400')
+    res.json({ price: cached.price, hash: cached.hash, url: `/api/images/${cached.hash}` })
+    return
+  }
+
   const [priceResult, searchRes] = await Promise.allSettled([
-    fetchPrice(encoded),
-    steamFetch(`${STEAM_SEARCH_API}?appid=252490&query=${encoded}&norender=1&count=5`),
+    priceValid ? Promise.resolve(cached.price) : fetchPrice(encoded),
+    hashValid ? Promise.resolve(null) : steamFetch(`${STEAM_SEARCH_API}?appid=252490&query=${encoded}&norender=1&count=5`),
   ])
 
-  const price = priceResult.status === 'fulfilled' ? priceResult.value : null
+  const price = priceResult.status === 'fulfilled' ? priceResult.value : (cached?.price ?? null)
 
-  let hash = null
-  if (searchRes.status === 'fulfilled' && searchRes.value.ok) {
+  let hash = cached?.hash ?? null
+  if (hashValid == false && searchRes.status === 'fulfilled' && searchRes.value?.ok) {
     const data = await searchRes.value.json()
     const result = data.results?.find(val => val.hash_name === name)
     if (result) hash = result.asset_description.icon_url
   }
 
-  res.json({ price, hash, url: hash ? `${STEAM_CDN_BASE}${hash}${STEAM_CDN_SUFFIX}` : null })
+  if (price == null && hash == null) {
+    if (BROWSER_CACHE_ENABLED) res.setHeader('Cache-Control', 'public, max-age=14400')
+    res.json({ price, hash, url: null })
+    return
+  }
+
+  const fields = ['name']
+  const values = [name]
+  if (price != null) {
+    fields.push('price', 'price_expires_at')
+    values.push(price, new Date(Date.now() + PRICE_TTL_MS))
+  }
+  if (hash != null) { fields.push('hash'); values.push(hash) }
+
+  const placeholders = values.map((_, idx) => `$${idx + 1}`).join(', ')
+  const updateSet = fields
+    .filter(field => field !== 'name')
+    .map(field => `${field} = EXCLUDED.${field}`)
+    .join(',\n       ')
+
+  await pool.query(
+    `INSERT INTO items (${fields.join(', ')})
+     VALUES (${placeholders})
+     ON CONFLICT (name) DO UPDATE SET
+       ${updateSet}`,
+    values
+  )
+
+  if (hash != null) {
+    await pool.query(
+      'INSERT INTO loc_eng (hash, name) VALUES ($1, $2) ON CONFLICT (hash) DO NOTHING',
+      [hash, name]
+    )
+  }
+
+  if (BROWSER_CACHE_ENABLED) res.setHeader('Cache-Control', 'public, max-age=14400')
+  res.json({ price, hash, url: hash != null ? `/api/images/${hash}` : null })
 })
 
-const fetchAndStoreImage = async hash => {
-  const upstream = await fetch(`${STEAM_CDN_BASE}${hash}${STEAM_CDN_SUFFIX}`)
+const hash64 = val => createHash('sha256').update(val).digest().readBigUInt64BE(0).toString(16).padStart(16, '0')
 
-  if (upstream.ok == false) return null
+app.post('/api/sets', async (req, res) => {
+  const { items, hashes } = req.body
+  if (Array.isArray(items) == false || items.length === 0) { res.status(400).end(); return }
+  if (Array.isArray(hashes) == false || hashes.length === 0) { res.status(400).end(); return }
 
-  const buffer = Buffer.from(await upstream.arrayBuffer())
+  const sorted = [...hashes].sort()
+  const setHash = createHash('sha256')
+    .update(sorted.map(hash64).join(''))
+    .digest()
+    .readBigUInt64BE(0)
+    .toString(16)
+    .padStart(16, '0')
 
-  await s3.send(new PutObjectCommand({
-    Bucket: BUCKET,
-    Key: `${hash}.png`,
-    Body: buffer,
-    ContentType: 'image/png',
-  }))
+  await pool.query(
+    'INSERT INTO items_sets (set_hash, items) VALUES ($1, $2) ON CONFLICT (set_hash) DO NOTHING',
+    [setHash, sorted]
+  )
 
-  console.log(`[S3] stored image ${hash.slice(0, 12)}…`)
+  res.json({ set_hash: setHash })
+})
 
-  return buffer
-}
+app.get('/api/sets/:hash', async (req, res) => {
+  const { rows } = await pool.query('SELECT * FROM items_sets WHERE set_hash = $1', [req.params.hash])
+  if (rows.length === 0) { res.status(404).end(); return }
+
+  res.json(rows[0])
+})
 
 app.get('/api/images/:hash', async (req, res) => {
   const { hash } = req.params
@@ -136,7 +197,7 @@ app.get('/api/images/:hash', async (req, res) => {
   try {
     const obj = await s3.send(new GetObjectCommand({ Bucket: BUCKET, Key: key }))
     res.setHeader('Content-Type', 'image/png')
-    res.setHeader('Cache-Control', 'public, max-age=86400')
+    if (BROWSER_CACHE_ENABLED) res.setHeader('Cache-Control', 'public, max-age=86400')
     obj.Body.pipe(res)
 
     return
@@ -145,12 +206,12 @@ app.get('/api/images/:hash', async (req, res) => {
   }
 
   try {
-    const buffer = await fetchAndStoreImage(hash)
+    const buffer = await fetchAndStoreImage(hash, s3, BUCKET)
 
     if (buffer == null) { res.status(502).end(); return }
 
     res.setHeader('Content-Type', 'image/png')
-    res.setHeader('Cache-Control', 'public, max-age=86400')
+    if (BROWSER_CACHE_ENABLED) res.setHeader('Cache-Control', 'public, max-age=86400')
     res.send(buffer)
   } catch (err) {
     console.error('Image proxy error:', err.message)
@@ -158,6 +219,6 @@ app.get('/api/images/:hash', async (req, res) => {
   }
 })
 
-ensureBucket().then(() => {
+Promise.all([ensureBucket(), initDb()]).then(() => {
   app.listen(PORT, () => console.log(`Server on :${PORT}`))
 })

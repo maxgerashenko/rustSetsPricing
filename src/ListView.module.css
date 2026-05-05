@@ -5,14 +5,19 @@
   gap: 0;
 }
 
-.actions {
-  display: grid;
-  grid-template-columns: 1fr 2fr;
-  margin-top: 0.5rem;
+.card {
+  width: 100%;
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: var(--radius);
   overflow: hidden;
+  margin-top: 0.5rem;
+}
+
+.actions {
+  display: grid;
+  grid-template-columns: 1fr 2fr;
+  border-top: 1px solid var(--border);
 }
 
 .inspectBtn {
@@ -42,10 +47,6 @@
 .list {
   list-style: none;
   width: 100%;
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  overflow: hidden;
 }
 
 .item {
@@ -138,10 +139,7 @@
   justify-content: space-between;
   align-items: center;
   padding: 0.9rem 1rem;
-  margin-top: 0.5rem;
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
+  border-top: 1px solid var(--border);
   font-size: 0.95rem;
   font-weight: 600;
   color: var(--text-primary);

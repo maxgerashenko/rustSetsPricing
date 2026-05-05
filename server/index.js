@@ -149,17 +149,31 @@ app.get('/api/item', async (req, res) => {
     values
   )
 
+  if (hash != null) {
+    await pool.query(
+      'INSERT INTO loc_eng (hash, name) VALUES ($1, $2) ON CONFLICT (hash) DO NOTHING',
+      [hash, name]
+    )
+  }
+
   if (BROWSER_CACHE_ENABLED) res.setHeader('Cache-Control', 'public, max-age=14400')
   res.json({ price, hash, url: hash != null ? `/api/images/${hash}` : null })
 })
 
-app.post('/api/sets', async (req, res) => {
-  const { items } = req.body
-  if (Array.isArray(items) == false || items.length === 0) { res.status(400).end(); return }
+const hash64 = val => createHash('sha256').update(val).digest().readBigUInt64BE(0).toString(16).padStart(16, '0')
 
-  const sorted = [...items].sort()
-  const buf = createHash('sha256').update(sorted.join('\0')).digest()
-  const setHash = buf.readBigUInt64BE(0).toString(16).padStart(16, '0')
+app.post('/api/sets', async (req, res) => {
+  const { items, hashes } = req.body
+  if (Array.isArray(items) == false || items.length === 0) { res.status(400).end(); return }
+  if (Array.isArray(hashes) == false || hashes.length === 0) { res.status(400).end(); return }
+
+  const sorted = [...hashes].sort()
+  const setHash = createHash('sha256')
+    .update(sorted.map(hash64).join(''))
+    .digest()
+    .readBigUInt64BE(0)
+    .toString(16)
+    .padStart(16, '0')
 
   await pool.query(
     'INSERT INTO items_sets (set_hash, items) VALUES ($1, $2) ON CONFLICT (set_hash) DO NOTHING',

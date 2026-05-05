@@ -17,6 +17,10 @@ export async function initDb() {
       hash TEXT,
       price_expires_at TIMESTAMPTZ
     );
+    CREATE TABLE IF NOT EXISTS loc_eng (
+      hash TEXT PRIMARY KEY,
+      name TEXT NOT NULL
+    );
     CREATE TABLE IF NOT EXISTS items_sets (
       id SERIAL PRIMARY KEY,
       set_hash TEXT NOT NULL UNIQUE,

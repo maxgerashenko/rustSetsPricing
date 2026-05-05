@@ -28,16 +28,12 @@ export default function ListView({ rawList, onBack }) {
     const controller = new AbortController()
 
     const run = async () => {
-      await fetch('/api/sets', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ items: names }),
-        signal: controller.signal,
-      }).catch(() => {})
+      const hashes = []
 
-      names.forEach(async name => {
+      await Promise.all(names.map(async (name, idx) => {
         try {
           const data = await fetchItem(name, controller.signal)
+          hashes[idx] = data.hash
           setItems(prev => prev.map(val =>
             val.name === name ? { ...val, status: 'done', ...data } : val
           ))
@@ -48,7 +44,17 @@ export default function ListView({ rawList, onBack }) {
             val.name === name ? { ...val, status: 'error' } : val
           ))
         }
-      })
+      }))
+
+      const validHashes = hashes.filter(hash => hash != null)
+      if (validHashes.length === 0) return
+
+      await fetch('/api/sets', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ items: names, hashes: validHashes }),
+        signal: controller.signal,
+      }).catch(() => {})
     }
 
     run()

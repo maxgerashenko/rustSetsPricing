@@ -94,10 +94,42 @@
   color: var(--text-muted);
 }
 
+.parseRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 16px;
+  border-top: 1px solid var(--line);
+  background: var(--bg-elev-2);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  color: var(--text-faint);
+  text-transform: uppercase;
+}
+
+.parseCount {
+  color: var(--text-dim);
+}
+
+.parseCount b {
+  color: var(--accent);
+  font-weight: 600;
+}
+
 .actions {
   display: grid;
   grid-template-columns: 1fr 2fr;
   border-top: 1px solid var(--border);
+}
+
+.fadeIn {
+  animation: fadeIn 320ms ease both;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: none; }
 }
 
 .pasteBtn {
@@ -125,7 +157,10 @@
 }
 
 .button {
-  display: block;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
   width: 100%;
   padding: 0.85rem 1rem;
   background: var(--accent);

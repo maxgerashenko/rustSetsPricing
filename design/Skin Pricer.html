@@ -1,0 +1,149 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Junkpile · Skin Pricer</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap"/>
+  <link rel="stylesheet" href="styles.css"/>
+
+  <script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+</head>
+<body data-theme="dark" data-density="regular">
+  <div id="root"></div>
+
+  <script type="text/babel" src="tweaks-panel.jsx"></script>
+  <script type="text/babel" src="data.jsx"></script>
+  <script type="text/babel" src="screens.jsx"></script>
+
+  <script type="text/babel">
+    const { useState, useEffect } = React;
+    const { InputScreen, ResultsScreen, EditScreen, SAMPLE } = window.Screens;
+    const { parseList } = window.Junkpile;
+
+    const TWEAK_DEFAULTS = /*EDITMODE-BEGIN*/{
+      "accent": "#c53620",
+      "density": "compact",
+      "theme": "dark",
+      "showSeed": true
+    }/*EDITMODE-END*/;
+
+    function hexToOklchHue(hex) {
+      // Rough hex -> hue mapping for accent override; only used to set --accent.
+      // We'll just set --accent directly to the hex; CSS oklch references derive softly.
+      return hex;
+    }
+
+    function App() {
+      const [t, setTweak] = useTweaks(TWEAK_DEFAULTS);
+      const [screen, setScreen] = useState("input"); // input | results | edit
+      const [text, setText] = useState(t.showSeed ? SAMPLE : "");
+      const [items, setItems] = useState([]);
+      const [currency, setCurrency] = useState("USD");
+
+      // Apply theme + density via body data attrs
+      useEffect(() => {
+        document.body.dataset.theme = t.theme;
+        document.body.dataset.density = t.density;
+      }, [t.theme, t.density]);
+
+      // Apply accent
+      useEffect(() => {
+        document.documentElement.style.setProperty("--accent", t.accent);
+        document.documentElement.style.setProperty("--accent-soft", t.accent + "24");
+        document.documentElement.style.setProperty("--accent-line", t.accent + "6a");
+        document.documentElement.style.setProperty("--accent-text", t.accent);
+      }, [t.accent]);
+
+      const goPrice = (raw) => {
+        setText(raw);
+        setItems(parseList(raw));
+        setScreen("results");
+      };
+      const goEdit = () => setScreen("edit");
+      const saveEdit = (raw) => {
+        setText(raw);
+        setItems(parseList(raw));
+        setScreen("results");
+      };
+      const reset = () => {
+        setItems([]);
+        setText("");
+        setScreen("input");
+      };
+
+      return (
+        <>
+          {screen === "input" && (
+            <InputScreen onSubmit={goPrice} initialText={text}/>
+          )}
+          {screen === "results" && (
+            <ResultsScreen
+              items={items}
+              onEdit={goEdit}
+              onReset={reset}
+              currency={currency}
+              setCurrency={setCurrency}
+            />
+          )}
+          {screen === "edit" && (
+            <EditScreen
+              items={items}
+              onCancel={() => setScreen("results")}
+              onSave={saveEdit}
+            />
+          )}
+
+          <TweaksPanel title="Tweaks">
+            <TweakSection label="Flow" />
+            <TweakRadio
+              label="Screen"
+              value={screen}
+              options={["input", "results", "edit"]}
+              onChange={(v) => {
+                if (v === "results" && items.length === 0) {
+                  setItems(parseList(text || SAMPLE));
+                }
+                if (v === "edit" && items.length === 0) {
+                  setItems(parseList(text || SAMPLE));
+                }
+                setScreen(v);
+              }}
+            />
+            <TweakSection label="Theme" />
+            <TweakRadio
+              label="Mode"
+              value={t.theme}
+              options={["dark", "light"]}
+              onChange={(v) => setTweak("theme", v)}
+            />
+            <TweakColor
+              label="Accent"
+              value={t.accent}
+              onChange={(v) => setTweak("accent", v)}
+            />
+            <TweakRadio
+              label="Density"
+              value={t.density}
+              options={["compact", "regular", "cozy"]}
+              onChange={(v) => setTweak("density", v)}
+            />
+            <TweakSection label="Demo" />
+            <TweakButton label="Reset to sample" onClick={() => {
+              setText(SAMPLE);
+              setItems(parseList(SAMPLE));
+              setScreen("input");
+            }}>Reset</TweakButton>
+          </TweaksPanel>
+        </>
+      );
+    }
+
+    ReactDOM.createRoot(document.getElementById("root")).render(<App/>);
+  </script>
+</body>
+</html>

@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import styles from './app.module.css'
-import InputView from './input_view.jsx'
-import ListView from './list_view.jsx'
+import InputView from './views/input_view/input_view.jsx'
+import ListView from './views/list_view/list_view.jsx'
 
 export default function App() {
   const [list, setList] = useState(null)

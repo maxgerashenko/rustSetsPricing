@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react'
-import styles from './app.module.css'
-import { ArrowIcon, CheckIcon, PasteIcon } from './icons.jsx'
+import styles from '../../app.module.css'
+import { ArrowIcon, CheckIcon, PasteIcon } from '../../shared/icons.jsx'
 
 const cleanLines = text => text.split('\n').filter(val => val.trim()).join('\n')
 

@@ -1,11 +1,11 @@
 import { useEffect, useState } from 'react'
 import styles from './list_view.module.css'
-import appStyles from './app.module.css'
-import { API_ITEM } from './constants.js'
-import { parseItems, formatPrice, getMarketUrl } from './utils.js'
-import { CheckIcon, CopyIcon, EditIcon, InspectIcon } from './icons.jsx'
+import appStyles from '../../app.module.css'
+import { API_ITEM } from '../../shared/constants.js'
+import { parseItems } from '../../shared/utils.js'
 import ItemsList from './items_list.jsx'
-import ListInfo, { getItemStats } from './list_info.jsx'
+import ListInfo from './list_info.jsx'
+import ListControls from './list_controls.jsx'
 
 const fetchItem = async (name, signal) => {
   const res = await fetch(`${API_ITEM}?name=${encodeURIComponent(name)}`, { signal })
@@ -18,7 +18,6 @@ const fetchItem = async (name, signal) => {
 export default function ListView({ rawList, onBack }) {
   const [items, setItems] = useState([])
   const [currency, setCurrency] = useState('USD')
-  const [copied, setCopied] = useState(false)
 
   useEffect(() => {
     const names = parseItems(rawList)
@@ -60,39 +59,13 @@ export default function ListView({ rawList, onBack }) {
     return () => controller.abort()
   }, [rawList])
 
-  const { resolved, total } = getItemStats(items)
-
-  const openInspect = () => items
-    .forEach(val => window.open(getMarketUrl(val.name), '_blank'))
-
-  const copyTotal = async () => {
-    const text = `Junkpile total: ${formatPrice(total, currency)} (${resolved.length} items)`
-    try { await navigator.clipboard.writeText(text) } catch {}
-    setCopied(true)
-    setTimeout(() => setCopied(false), 1400)
-  }
-
   return (
     <div className={`${styles.container} ${appStyles.fadeIn}`}>
       <ListInfo items={items} currency={currency} setCurrency={setCurrency} />
 
       <div className={styles.card}>
         <ItemsList items={items} currency={currency} />
-
-        <div className={styles.actions}>
-          <button className={styles.actionBtn} type="button" onClick={openInspect} title="Open each item on the Steam Market">
-            <InspectIcon />
-            Inspect
-          </button>
-          <button className={styles.actionBtn} type="button" onClick={copyTotal}>
-            {copied ? <CheckIcon /> : <CopyIcon />}
-            {copied ? 'Copied' : 'Copy'}
-          </button>
-          <button className={styles.actionBtnPrimary} type="button" onClick={onBack}>
-            <EditIcon />
-            Edit List
-          </button>
-        </div>
+        <ListControls items={items} currency={currency} onEdit={onBack} />
       </div>
 
       <button className={styles.foothint} type="button" onClick={onBack}>

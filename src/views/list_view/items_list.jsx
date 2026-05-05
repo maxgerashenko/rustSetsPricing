@@ -1,6 +1,6 @@
 import styles from './list_view.module.css'
-import { API_IMAGES } from './constants.js'
-import { parseDollars, formatPrice, getMarketUrl } from './utils.js'
+import { API_IMAGES } from '../../shared/constants.js'
+import { parseDollars, formatPrice, getMarketUrl } from '../../shared/utils.js'
 import { getItemStats } from './list_info.jsx'
 
 const isUnresolved = val => val.status === 'error' || (val.status === 'done' && !val.price)

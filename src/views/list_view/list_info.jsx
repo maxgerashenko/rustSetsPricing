@@ -1,5 +1,5 @@
 import styles from './list_view.module.css'
-import { parseDollars } from './utils.js'
+import { parseDollars } from '../../shared/utils.js'
 
 export const getItemStats = items => {
   const resolved = items.filter(val => val.status === 'done' && val.price)

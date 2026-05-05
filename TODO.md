@@ -11,18 +11,14 @@
 - [x] Frontend Docker dev — `Dockerfile.dev` + `frontend` service with bind mount HMR; proxy via `VITE_PROXY_TARGET`
 - [x] Add `[data-theme="light"]` palette
 - [x] Paste button reads clipboard, cleans, updates textarea, shows "Pasted!" feedback (user clicks "Get Prices" to proceed)
+- [x] Compute `lines` via `split(/[\n,]+/)` (live comma-separated parsing)
+- [x] Disable submit when `lines.length === 0`
+- [x] Action row uses ghost (`Paste`) + primary (`Get Prices` with `→` arrow icon)
 
 ## Design Redesign — Junkpile spec ([design/README.md](design/README.md))
 
 The design upgrades a 2-screen flow (Input → List) to a 3-screen flow (Input → Results → Edit) with new tokens, components, and behaviors. Below is the diff between the current implementation and the new design.
 
-### Screen 1 — Input ([src/InputView.jsx](src/InputView.jsx))
-- [ ] Add `parse-row` strip between textarea and action row: `<N> items detected · One per line · or comma-separated` (uppercase mono, accent N)
-- [ ] Compute `lines` via `split(/[\n,]+/)` (currently splits on `\n` only — comma-separated input is not parsed live)
-- [ ] Disable submit when `lines.length === 0` (currently `value.trim() === ''`)
-- [ ] Helper text below card: `Pulls live community-market medians · refreshed every 5 min`
-- [ ] Action row uses ghost (`Paste`) + primary (`Get Prices` with `→` arrow icon)
-- [ ] Add `fade-in` (320ms) screen entry animation
 
 ### Screen 2 — Results (NEW — currently merged into [src/ListView.jsx](src/ListView.jsx))
 - [ ] Split out a `ResultsScreen` that owns: meta strip, item rows, stats, total, action row

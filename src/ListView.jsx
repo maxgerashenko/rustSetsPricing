@@ -67,8 +67,7 @@ export default function ListView({ rawList, onBack }) {
   const allDone = items.length > 0 && items.every(val => val.status !== 'loading')
 
   const openInspect = () => items
-    .filter(val => val.url)
-    .forEach(val => window.open(val.url, '_blank'))
+    .forEach(val => window.open(getMarketUrl(val.name), '_blank'))
 
   return (
     <div className={styles.container}>

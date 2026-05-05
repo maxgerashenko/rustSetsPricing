@@ -54,44 +54,46 @@ export default function ListView({ rawList, onBack }) {
 
   return (
     <div className={styles.container}>
-      <ul className={styles.list}>
-        {items.map(val => (
-          <li key={val.name} className={styles.item}>
-            <div className={styles.thumb}>
-              {val.url
-                ? <a href={val.url} target="_blank" rel="noreferrer">
-                    <img src={`${API_IMAGES}${val.hash}`} alt={val.name} width={62} height={62} />
-                  </a>
-                : <div className={styles.thumbPlaceholder} />
-              }
-            </div>
-            <a className={styles.name} href={getMarketUrl(val.name)} target="_blank" rel="noreferrer">
-              {val.name}
-            </a>
-            <span className={styles.price}>
-              {val.status === 'loading' && <span className={styles.skeleton} />}
-              {val.status === 'done' && (val.price ?? <span className={styles.na}>N/A</span>)}
-              {val.status === 'error' && <span className={styles.na}>N/A</span>}
-            </span>
-          </li>
-        ))}
-      </ul>
+      <div className={styles.card}>
+        <ul className={styles.list}>
+          {items.map(val => (
+            <li key={val.name} className={styles.item}>
+              <div className={styles.thumb}>
+                {val.url
+                  ? <a href={val.url} target="_blank" rel="noreferrer">
+                      <img src={`${API_IMAGES}${val.hash}`} alt={val.name} width={62} height={62} />
+                    </a>
+                  : <div className={styles.thumbPlaceholder} />
+                }
+              </div>
+              <a className={styles.name} href={getMarketUrl(val.name)} target="_blank" rel="noreferrer">
+                {val.name}
+              </a>
+              <span className={styles.price}>
+                {val.status === 'loading' && <span className={styles.skeleton} />}
+                {val.status === 'done' && (val.price ?? <span className={styles.na}>N/A</span>)}
+                {val.status === 'error' && <span className={styles.na}>N/A</span>}
+              </span>
+            </li>
+          ))}
+        </ul>
 
-      <div className={styles.total}>
-        <span>Total</span>
-        {allDone ? <span>${total.toFixed(2)}</span> : <span className={styles.skeleton} />}
-      </div>
+        <div className={styles.total}>
+          <span>Total</span>
+          {allDone ? <span>${total.toFixed(2)}</span> : <span className={styles.skeleton} />}
+        </div>
 
-      <div className={styles.actions}>
-        <button className={styles.inspectBtn} type="button" onClick={openInspect}>
-          <InspectIcon />
-          Inspect
-        </button>
+        <div className={styles.actions}>
+          <button className={styles.inspectBtn} type="button" onClick={openInspect}>
+            <InspectIcon />
+            Inspect
+          </button>
 
-        <button className={styles.back} onClick={onBack}>
-          <EditIcon />
-          Edit List
-        </button>
+          <button className={styles.back} onClick={onBack}>
+            <EditIcon />
+            Edit List
+          </button>
+        </div>
       </div>
     </div>
   )

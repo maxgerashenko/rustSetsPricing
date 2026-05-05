@@ -4,6 +4,7 @@ import { STEAM_SEARCH_API, STEAM_PRICE_API } from './constants.js'
 import { S3Client, GetObjectCommand, CreateBucketCommand, HeadBucketCommand } from '@aws-sdk/client-s3'
 import { fetchAndStoreImage } from './imageCache.js'
 import { pool, initDb } from './db.js'
+import { BROWSER_CACHE_ENABLED } from './flags.js'
 
 const s3 = new S3Client({
   endpoint: process.env.S3_ENDPOINT,
@@ -100,7 +101,7 @@ app.get('/api/item', async (req, res) => {
   const hashValid = cached?.hash != null
 
   if (priceValid && hashValid) {
-    res.setHeader('Cache-Control', 'public, max-age=14400')
+    if (BROWSER_CACHE_ENABLED) res.setHeader('Cache-Control', 'public, max-age=14400')
     res.json({ price: cached.price, hash: cached.hash, url: `/api/images/${cached.hash}` })
     return
   }
@@ -119,19 +120,36 @@ app.get('/api/item', async (req, res) => {
     if (result) hash = result.asset_description.icon_url
   }
 
-  const expiresAt = new Date(Date.now() + PRICE_TTL_MS)
+  if (price == null && hash == null) {
+    if (BROWSER_CACHE_ENABLED) res.setHeader('Cache-Control', 'public, max-age=14400')
+    res.json({ price, hash, url: null })
+    return
+  }
+
+  const fields = ['name']
+  const values = [name]
+  if (price != null) {
+    fields.push('price', 'price_expires_at')
+    values.push(price, new Date(Date.now() + PRICE_TTL_MS))
+  }
+  if (hash != null) { fields.push('hash'); values.push(hash) }
+
+  const placeholders = values.map((_, idx) => `$${idx + 1}`).join(', ')
+  const updateSet = fields
+    .filter(field => field !== 'name')
+    .map(field => `${field} = EXCLUDED.${field}`)
+    .join(',\n       ')
+
   await pool.query(
-    `INSERT INTO item_cache (name, price, hash, price_expires_at)
-     VALUES ($1, $2, $3, $4)
+    `INSERT INTO item_cache (${fields.join(', ')})
+     VALUES (${placeholders})
      ON CONFLICT (name) DO UPDATE SET
-       price = EXCLUDED.price,
-       hash = COALESCE(EXCLUDED.hash, item_cache.hash),
-       price_expires_at = EXCLUDED.price_expires_at`,
-    [name, price, hash, expiresAt]
+       ${updateSet}`,
+    values
   )
 
-  res.setHeader('Cache-Control', 'public, max-age=14400')
-  res.json({ price, hash, url: hash ? `/api/images/${hash}` : null })
+  if (BROWSER_CACHE_ENABLED) res.setHeader('Cache-Control', 'public, max-age=14400')
+  res.json({ price, hash, url: hash != null ? `/api/images/${hash}` : null })
 })
 
 app.post('/api/sets', async (req, res) => {
@@ -160,7 +178,7 @@ app.get('/api/images/:hash', async (req, res) => {
   try {
     const obj = await s3.send(new GetObjectCommand({ Bucket: BUCKET, Key: key }))
     res.setHeader('Content-Type', 'image/png')
-    res.setHeader('Cache-Control', 'public, max-age=86400')
+    if (BROWSER_CACHE_ENABLED) res.setHeader('Cache-Control', 'public, max-age=86400')
     obj.Body.pipe(res)
 
     return
@@ -174,7 +192,7 @@ app.get('/api/images/:hash', async (req, res) => {
     if (buffer == null) { res.status(502).end(); return }
 
     res.setHeader('Content-Type', 'image/png')
-    res.setHeader('Cache-Control', 'public, max-age=86400')
+    if (BROWSER_CACHE_ENABLED) res.setHeader('Cache-Control', 'public, max-age=86400')
     res.send(buffer)
   } catch (err) {
     console.error('Image proxy error:', err.message)

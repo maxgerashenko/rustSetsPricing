@@ -24,7 +24,7 @@ export default function ItemsList({ items, currency }) {
               <div className={styles.thumb}>
                 {val.url
                   ? <a href={val.url} target="_blank" rel="noreferrer">
-                      <img src={`${API_IMAGES}${val.hash}`} alt={val.name} width={44} height={44} />
+                      <img src={`${API_IMAGES}${val.hash}`} alt={val.name} width={96} height={86} />
                     </a>
                   : <div className={styles.thumbPlaceholder} />
                 }

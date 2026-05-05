@@ -14,4 +14,13 @@ export const parseDollars = str => {
   return isNaN(num) ? 0 : num
 }
 
+export const formatPrice = (n, currency) => {
+  if (n == null || isNaN(n)) return '—'
+
+  const sym = currency === 'EUR' ? '€' : '$'
+  const value = currency === 'EUR' ? n * 0.92 : n
+
+  return `${sym}${value.toFixed(2)}`
+}
+
 export const getMarketUrl = name => `${MARKET_LISTINGS_BASE}${encodeURIComponent(name)}`

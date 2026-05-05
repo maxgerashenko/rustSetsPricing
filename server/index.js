@@ -1,13 +1,8 @@
 import 'dotenv/config'
 import express from 'express'
-import { STEAM_SEARCH_API, STEAM_PRICE_API, STEAM_CDN_BASE, STEAM_CDN_SUFFIX } from './constants.js'
-import {
-  S3Client,
-  GetObjectCommand,
-  PutObjectCommand,
-  CreateBucketCommand,
-  HeadBucketCommand,
-} from '@aws-sdk/client-s3'
+import { STEAM_SEARCH_API, STEAM_PRICE_API } from './constants.js'
+import { S3Client, GetObjectCommand, CreateBucketCommand, HeadBucketCommand } from '@aws-sdk/client-s3'
+import { fetchAndStoreImage } from './imageCache.js'
 
 const s3 = new S3Client({
   endpoint: process.env.S3_ENDPOINT,
@@ -107,27 +102,9 @@ app.get('/api/item', async (req, res) => {
     if (result) hash = result.asset_description.icon_url
   }
 
-  res.json({ price, hash, url: hash ? `${STEAM_CDN_BASE}${hash}${STEAM_CDN_SUFFIX}` : null })
+  res.json({ price, hash, url: hash ? `/api/images/${hash}` : null })
 })
 
-const fetchAndStoreImage = async hash => {
-  const upstream = await fetch(`${STEAM_CDN_BASE}${hash}${STEAM_CDN_SUFFIX}`)
-
-  if (upstream.ok == false) return null
-
-  const buffer = Buffer.from(await upstream.arrayBuffer())
-
-  await s3.send(new PutObjectCommand({
-    Bucket: BUCKET,
-    Key: `${hash}.png`,
-    Body: buffer,
-    ContentType: 'image/png',
-  }))
-
-  console.log(`[S3] stored image ${hash.slice(0, 12)}…`)
-
-  return buffer
-}
 
 app.get('/api/images/:hash', async (req, res) => {
   const { hash } = req.params
@@ -145,7 +122,7 @@ app.get('/api/images/:hash', async (req, res) => {
   }
 
   try {
-    const buffer = await fetchAndStoreImage(hash)
+    const buffer = await fetchAndStoreImage(hash, s3, BUCKET)
 
     if (buffer == null) { res.status(502).end(); return }
 

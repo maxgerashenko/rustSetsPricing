@@ -3,6 +3,7 @@ import express from 'express'
 import { STEAM_SEARCH_API, STEAM_PRICE_API } from './constants.js'
 import { S3Client, GetObjectCommand, CreateBucketCommand, HeadBucketCommand } from '@aws-sdk/client-s3'
 import { fetchAndStoreImage } from './imageCache.js'
+import { pool, initDb } from './db.js'
 
 const s3 = new S3Client({
   endpoint: process.env.S3_ENDPOINT,
@@ -16,6 +17,7 @@ const s3 = new S3Client({
 
 const BUCKET = process.env.S3_BUCKET ?? 'rust-items'
 const PORT = process.env.SERVER_PORT ?? 3001
+const PRICE_TTL_MS = 4 * 60 * 60 * 1000
 
 async function ensureBucket() {
   try {
@@ -80,22 +82,8 @@ async function fetchPrice(encoded) {
   return null
 }
 
-const PRICE_TTL = 4 * 60 * 60 * 1000
-const priceCache = new Map()
-
-function getCachedPrice(name) {
-  const entry = priceCache.get(name)
-  if (entry == null) return null
-  if (Date.now() > entry.expiresAt) { priceCache.delete(name); return null }
-
-  return entry.price
-}
-
-function setCachedPrice(name, price) {
-  priceCache.set(name, { price, expiresAt: Date.now() + PRICE_TTL })
-}
-
 const app = express()
+app.use(express.json())
 
 app.get('/api/item', async (req, res) => {
   const { name } = req.query
@@ -103,25 +91,67 @@ app.get('/api/item', async (req, res) => {
 
   const encoded = encodeURIComponent(name)
 
-  const cached = getCachedPrice(name)
+  const { rows } = await pool.query(
+    'SELECT price, hash, price_expires_at FROM item_cache WHERE name = $1',
+    [name]
+  )
+  const cached = rows[0] ?? null
+  const priceValid = cached != null && new Date(cached.price_expires_at) > new Date()
+  const hashValid = cached?.hash != null
+
+  if (priceValid && hashValid) {
+    res.setHeader('Cache-Control', 'public, max-age=14400')
+    res.json({ price: cached.price, hash: cached.hash, url: `/api/images/${cached.hash}` })
+    return
+  }
+
   const [priceResult, searchRes] = await Promise.allSettled([
-    cached != null ? Promise.resolve(cached) : fetchPrice(encoded).then(val => { if (val != null) setCachedPrice(name, val); return val }),
-    steamFetch(`${STEAM_SEARCH_API}?appid=252490&query=${encoded}&norender=1&count=5`),
+    priceValid ? Promise.resolve(cached.price) : fetchPrice(encoded),
+    hashValid ? Promise.resolve(null) : steamFetch(`${STEAM_SEARCH_API}?appid=252490&query=${encoded}&norender=1&count=5`),
   ])
 
-  const price = priceResult.status === 'fulfilled' ? priceResult.value : null
+  const price = priceResult.status === 'fulfilled' ? priceResult.value : (cached?.price ?? null)
 
-  let hash = null
-  if (searchRes.status === 'fulfilled' && searchRes.value.ok) {
+  let hash = cached?.hash ?? null
+  if (hashValid == false && searchRes.status === 'fulfilled' && searchRes.value?.ok) {
     const data = await searchRes.value.json()
     const result = data.results?.find(val => val.hash_name === name)
     if (result) hash = result.asset_description.icon_url
   }
 
+  const expiresAt = new Date(Date.now() + PRICE_TTL_MS)
+  await pool.query(
+    `INSERT INTO item_cache (name, price, hash, price_expires_at)
+     VALUES ($1, $2, $3, $4)
+     ON CONFLICT (name) DO UPDATE SET
+       price = EXCLUDED.price,
+       hash = COALESCE(EXCLUDED.hash, item_cache.hash),
+       price_expires_at = EXCLUDED.price_expires_at`,
+    [name, price, hash, expiresAt]
+  )
+
   res.setHeader('Cache-Control', 'public, max-age=14400')
   res.json({ price, hash, url: hash ? `/api/images/${hash}` : null })
 })
 
+app.post('/api/sets', async (req, res) => {
+  const { items } = req.body
+  if (Array.isArray(items) == false || items.length === 0) { res.status(400).end(); return }
+
+  const { rows } = await pool.query(
+    'INSERT INTO sets (items) VALUES ($1) RETURNING id, created_at',
+    [items]
+  )
+
+  res.status(201).json(rows[0])
+})
+
+app.get('/api/sets/:id', async (req, res) => {
+  const { rows } = await pool.query('SELECT * FROM sets WHERE id = $1', [req.params.id])
+  if (rows.length === 0) { res.status(404).end(); return }
+
+  res.json(rows[0])
+})
 
 app.get('/api/images/:hash', async (req, res) => {
   const { hash } = req.params
@@ -152,6 +182,6 @@ app.get('/api/images/:hash', async (req, res) => {
   }
 })
 
-ensureBucket().then(() => {
+Promise.all([ensureBucket(), initDb()]).then(() => {
   app.listen(PORT, () => console.log(`Server on :${PORT}`))
 })

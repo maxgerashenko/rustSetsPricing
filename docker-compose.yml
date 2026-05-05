@@ -1,4 +1,19 @@
 services:
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    ports:
+      - "5173:5173"
+    volumes:
+      - .:/app
+      - /app/node_modules
+    environment:
+      - CHOKIDAR_USEPOLLING=true
+      - VITE_PROXY_TARGET=http://app:3001
+    depends_on:
+      - app
+
   app:
     build: .
     ports:
@@ -25,7 +40,7 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-rust}"]
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-rust} -d ${DB_NAME:-rustsets}"]
       interval: 5s
       timeout: 5s
       retries: 5

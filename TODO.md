@@ -9,18 +9,12 @@
 - [x] `POST /api/sets` and `GET /api/sets/:id` — backend endpoints complete
 - [x] Docker Compose — separate containers for app, Postgres 16, MinIO; health checks on db/minio
 - [x] Frontend Docker dev — `Dockerfile.dev` + `frontend` service with bind mount HMR; proxy via `VITE_PROXY_TARGET`
+- [x] Add `[data-theme="light"]` palette
+- [x] Paste button reads clipboard, cleans, updates textarea, shows "Pasted!" feedback (user clicks "Get Prices" to proceed)
 
 ## Design Redesign — Junkpile spec ([design/README.md](design/README.md))
 
 The design upgrades a 2-screen flow (Input → List) to a 3-screen flow (Input → Results → Edit) with new tokens, components, and behaviors. Below is the diff between the current implementation and the new design.
-
-### Tokens / Theme
-- [ ] Migrate color tokens to `oklch()` (`--bg`, `--bg-elev`, `--bg-elev-2`, `--line`, `--line-strong`, `--text`, `--text-dim`, `--text-faint`, `--good`, `--bad`) — current uses flat hex
-- [ ] Add accent variants: `--accent-soft`, `--accent-line`, `--accent-text` (kept `--accent: #CD412B`)
-- [ ] Add `--font-display` (Space Grotesk) and `--font-mono` (JetBrains Mono); load fonts from Google Fonts
-- [ ] Add `[data-theme="light"]` palette
-- [ ] Replace `.title` with `.headline` using Space Grotesk, `clamp(44px, 6vw, 64px)`, line-height 0.98, letter-spacing -0.02em
-- [ ] Replace `.badge` with `.tag` (uppercase, mono, accent dot with glow, 0.18em letter-spacing)
 
 ### Screen 1 — Input ([src/InputView.jsx](src/InputView.jsx))
 - [ ] Add `parse-row` strip between textarea and action row: `<N> items detected · One per line · or comma-separated` (uppercase mono, accent N)

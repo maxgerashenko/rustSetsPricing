@@ -9,9 +9,12 @@ export default function App() {
   return (
     <div className={styles.page}>
       <div className={styles.hero}>
-        <div className={styles.badge}>RUST MARKET</div>
-        <h1 className={styles.title}>
-          Price your<br />
+        <span className={styles.tag}>
+          <span className={styles.tagDot} />
+          Junkpile · Skin Pricer
+        </span>
+        <h1 className={styles.headline}>
+          Price your
           <span className={styles.accent}>skin set</span>
         </h1>
 

@@ -5,17 +5,53 @@
 }
 
 :root {
-  --bg: #0d0f12;
-  --surface: #161a1f;
-  --surface-hover: #1d2229;
-  --border: #2a2f38;
-  --border-focus: #cd412b;
+  --bg: oklch(14% 0.006 40);
+  --bg-elev: oklch(18% 0.008 40);
+  --bg-elev-2: oklch(22% 0.009 40);
+  --line: oklch(26% 0.008 40);
+  --line-strong: oklch(32% 0.01 40);
+  --text: oklch(96% 0.004 80);
+  --text-dim: oklch(74% 0.008 60);
+  --text-faint: oklch(54% 0.01 60);
+
   --accent: #cd412b;
-  --accent-glow: rgba(205, 65, 43, 0.35);
-  --text-primary: #e8eaed;
-  --text-secondary: #8b9099;
-  --text-muted: #555c66;
+  --accent-soft: rgba(205, 65, 43, 0.14);
+  --accent-line: rgba(205, 65, 43, 0.42);
+  --accent-text: #e5563e;
+
+  --good: oklch(72% 0.13 145);
+  --bad: oklch(62% 0.2 25);
+
   --radius: 10px;
+  --radius-card: 14px;
+  --radius-row: 10px;
+  --radius-btn: 10px;
+
+  --font-ui: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-display: 'Space Grotesk', 'Inter', sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, 'SF Mono', Menlo, monospace;
+
+  /* legacy aliases (gradually phase out) */
+  --surface: var(--bg-elev);
+  --surface-hover: var(--bg-elev-2);
+  --border: var(--line);
+  --border-focus: var(--accent);
+  --accent-glow: var(--accent-soft);
+  --text-primary: var(--text);
+  --text-secondary: var(--text-dim);
+  --text-muted: var(--text-faint);
+}
+
+[data-theme="light"] {
+  --bg: oklch(97% 0.005 80);
+  --bg-elev: oklch(99% 0.003 80);
+  --bg-elev-2: oklch(95% 0.006 80);
+  --line: oklch(88% 0.008 60);
+  --line-strong: oklch(80% 0.01 60);
+  --text: oklch(22% 0.012 50);
+  --text-dim: oklch(42% 0.014 50);
+  --text-faint: oklch(58% 0.014 60);
+  --accent-soft: oklch(65% 0.18 35 / 0.12);
 }
 
 html, body, #root {
@@ -23,8 +59,9 @@ html, body, #root {
 }
 
 body {
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  font-family: var(--font-ui);
   background-color: var(--bg);
-  color: var(--text-primary);
+  color: var(--text);
   -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
 }

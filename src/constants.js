@@ -1,0 +1,5 @@
+export const MARKET_LISTINGS_BASE = 'https://steamcommunity.com/market/listings/252490/'
+export const API_ITEM = '/api/item'
+export const API_IMAGES = '/api/images/'
+export const CDN_IMAGE_BASE = 'https://community.fastly.steamstatic.com/economy/image/'
+export const CDN_IMAGE_SUFFIX = '/62fx62fdpx%202x'

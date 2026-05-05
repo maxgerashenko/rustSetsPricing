@@ -4,29 +4,57 @@ Web app for the game Rust — paste a list of item/skin names, see each item's i
 
 ## How to run
 
-### 1. Start MinIO (local S3-compatible storage)
+### With Docker (recommended)
 
+Runs the Node server, PostgreSQL, and MinIO in separate containers.
+
+```sh
+cp .env .env.local   # optional — override defaults
+docker compose up
 ```
-docker run -p 9000:9000 -p 9001:9001 \
-  quay.io/minio/minio server /data --console-address ":9001"
+
+- App: http://localhost:3001
+- Frontend (Vite, separate): `npm run front` → http://localhost:5173
+- MinIO console: http://localhost:9001 — user: `minioadmin`, password: `minioadmin`
+
+Stop everything:
+
+```sh
+docker compose down
+```
+
+Data persists in Docker volumes (`postgres_data`, `minio_data`). To wipe:
+
+```sh
+docker compose down -v
+```
+
+---
+
+### Without Docker (manual)
+
+**1. Start MinIO**
+
+```sh
+npm run s3
 ```
 
 MinIO console at http://localhost:9001 — user: `minioadmin`, password: `minioadmin`.  
 The Express server auto-creates the `rust-items` bucket on first start.
 
-### 2. Install dependencies
+**2. Install dependencies**
 
-```
+```sh
 npm install
 ```
 
-### 3. Start both servers
+**3. Start both servers**
 
-```
+```sh
 npm run dev
 ```
 
-This runs the Express image proxy (port 3001) and Vite dev server (port 5173) together.  
+This runs the Express backend (port 3001) and Vite dev server (port 5173) together.  
 Open http://localhost:5173.
 
 ## Clearing the cache

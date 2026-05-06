@@ -31,6 +31,9 @@
 ## Localization
 - [ ] Always source item names from `loc_<lang>` (default `loc_eng`) via `?loc=` param; `items.name` unchanged — see [plans/localization.md](plans/localization.md)
 
+## Set Last-Loaded Timestamp
+- [ ] Track `last_loaded_at` on sets, bumped on GET and on manual re-entry — see [plans/set-last-loaded-timestamp.md](plans/set-last-loaded-timestamp.md)
+
 ## Future Features
 - [ ] 24h trend delta per row: `▲` green / `▼` red (requires `trend` API field)
 - [ ] Show price as stale when cache TTL nearing expiry

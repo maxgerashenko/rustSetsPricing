@@ -25,6 +25,10 @@ Item images are retrieved via the Steam Market search/item detail endpoints or b
 - Total cost of the set is summed and displayed
 - Steam Market rate-limits aggressively — requests must be throttled or batched carefully
 
+## Model Confirmation (IMPORTANT)
+
+**Before starting any new task**, check the active model against [rules/models.md](rules/models.md). If the model does not match the task type, **STOP and ask the user to switch models** (`/model`) before proceeding. Do not begin work until confirmed.
+
 ## Response Length
 
 Keep responses under 1500 tokens. If a complete answer requires more, stop and ask the user whether to continue before proceeding.
@@ -34,3 +38,7 @@ Keep responses under 1500 tokens. If a complete answer requires more, stop and a
 - General: [rules/guidelines.md](rules/guidelines.md)
 - Frontend (`src/`): [rules/frontend.md](rules/frontend.md)
 - Backend (`server/`): [rules/backend.md](rules/backend.md)
+- Context: [rules/context.md](rules/context.md)
+- TODO management: [rules/todo.md](rules/todo.md)
+- Planning / next-task selection: [rules/planning.md](rules/planning.md)
+- Model selection: [rules/models.md](rules/models.md)

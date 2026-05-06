@@ -34,6 +34,9 @@
 ## Set Last-Loaded Timestamp
 - [ ] Track `last_loaded_at` on sets, bumped on GET and on manual re-entry — see [plans/set-last-loaded-timestamp.md](plans/set-last-loaded-timestamp.md)
 
+## Recent Sets on Input Page
+- [ ] Show 3 most recently loaded sets under title on input view, with `parseRow`-style header (`N · sets saved` + `View all` link); remove bottom `setsBtn` — see [plans/recent-sets-on-input.md](plans/recent-sets-on-input.md)
+
 ## Future Features
 - [ ] 24h trend delta per row: `▲` green / `▼` red (requires `trend` API field)
 - [ ] Show price as stale when cache TTL nearing expiry

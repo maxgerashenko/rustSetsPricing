@@ -25,8 +25,10 @@ export async function initDb() {
       id SERIAL PRIMARY KEY,
       set_hash TEXT NOT NULL UNIQUE,
       items TEXT[] NOT NULL,
-      created_at TIMESTAMPTZ DEFAULT NOW()
+      created_at TIMESTAMPTZ DEFAULT NOW(),
+      last_loaded_at TIMESTAMPTZ DEFAULT NOW()
     );
+    ALTER TABLE items_sets ADD COLUMN IF NOT EXISTS last_loaded_at TIMESTAMPTZ DEFAULT NOW();
   `)
   console.log('[DB] schema ready')
 }

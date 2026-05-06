@@ -165,7 +165,7 @@ const hash64 = val => createHash('sha256').update(val).digest().readBigUInt64BE(
 app.get('/api/sets', async (req, res) => {
   try {
     const { rows: sets } = await pool.query(
-      'SELECT set_hash, items, created_at FROM items_sets ORDER BY created_at DESC'
+      'SELECT set_hash, items, created_at, last_loaded_at FROM items_sets ORDER BY last_loaded_at DESC NULLS LAST'
     )
 
     const setsData = await Promise.all(sets.map(async (set) => {
@@ -193,6 +193,7 @@ app.get('/api/sets', async (req, res) => {
         hash: set.set_hash,
         items: itemData,
         createdAt: set.created_at,
+        lastLoadedAt: set.last_loaded_at,
       }
     }))
 
@@ -217,7 +218,9 @@ app.post('/api/sets', async (req, res) => {
     .padStart(16, '0')
 
   await pool.query(
-    'INSERT INTO items_sets (set_hash, items) VALUES ($1, $2) ON CONFLICT (set_hash) DO NOTHING',
+    `INSERT INTO items_sets (set_hash, items, last_loaded_at)
+     VALUES ($1, $2, NOW())
+     ON CONFLICT (set_hash) DO UPDATE SET last_loaded_at = NOW()`,
     [setHash, sorted]
   )
 
@@ -231,6 +234,9 @@ app.get('/api/sets/:hash', async (req, res) => {
 
   const setData = rows[0]
   const hashes = setData.items
+
+  pool.query('UPDATE items_sets SET last_loaded_at = NOW() WHERE set_hash = $1', [req.params.hash])
+    .catch(err => console.error('[Sets] last_loaded_at bump failed:', err.message))
 
   const locTable = `loc_${loc}`
   let nameRows = { rows: [] }

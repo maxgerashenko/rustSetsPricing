@@ -11,8 +11,15 @@ export default function SetItem({ set, currency }) {
     navigate(`/list?set=${setHash}`)
   }
 
+  const handleKeyDown = (e) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault()
+      handleSetClick()
+    }
+  }
+
   return (
-    <div className={styles.card}>
+    <div className={styles.card} onClick={handleSetClick} onKeyDown={handleKeyDown} role="button" tabIndex={0}>
       <div className={styles.setContent}>
         <div className={styles.icons}>
           {set.items.map((item, idx) => (
@@ -44,10 +51,6 @@ export default function SetItem({ set, currency }) {
           </div>
         </div>
       </div>
-
-      <button className={styles.viewBtn} onClick={handleSetClick}>
-        View →
-      </button>
     </div>
   )
 }

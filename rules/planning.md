@@ -2,13 +2,13 @@
 
 ## File
 
-- [plans/_planning.md](../plans/_planning.md) — todos grouped by dependency chains, sorted into 3 tiers, with token estimates.
+- [plans/_planning.md](../plans/_planning.md) — todos grouped by dependency chains, sorted into 3 statuses (In Progress, Available, Optional), with token estimates.
 
-## Tiers
+## Statuses
 
-1. **In Progress** — chains where the parent is done but the next child hasn't started. Pick from here first; these unblock work already underway.
-2. **Available** — chain heads (parent not started) and fully independent tasks.
-3. **Optional** — nice-to-have polish, no blockers, low urgency. Pick only if Tiers 1–2 are empty or the user asks for low-effort work.
+1. **In Progress** — active chains with completed tasks marked with ✓ and next task(s) listed. Pick from here first; these unblock work already underway. Once the entire chain is complete, move it to Done or archive.
+2. **Available** — new chain heads (not started) and fully independent tasks. Pick after In Progress tasks are done.
+3. **Optional** — nice-to-have polish, no blockers, low urgency. Pick only if In Progress and Available are empty or the user asks for low-effort work.
 
 ## Chains vs independent
 
@@ -46,8 +46,8 @@ Steps:
 When the user asks to "work on todo", "pick next task", "what's next", or similar:
 
 1. Read [plans/_planning.md](../plans/_planning.md) **before** `memory/todo.md`.
-2. Pick by tier: Tier 1 → Tier 2 → Tier 3.
-3. Within Tier 2, prefer chain heads over independent tasks (unblocks future work).
+2. Pick by status: In Progress → Available → Optional.
+3. Within Available, prefer chain heads over independent tasks (unblocks future work).
 4. Match task token cost to the active model's budget (see "Estimating token cost" below).
 5. Propose the chosen task (one line + plan link + K cost) and wait for user confirmation before starting.
 
@@ -61,15 +61,15 @@ Steps:
 2. Add a one-line entry to `_planning.md` linking to the plan file, with the cost + model.
 3. Decide placement:
    - **Has a dependency on another active plan?** → put it in that chain, after its parent. Recompute the chain total.
-   - **Independent and ready?** → Tier 2 → Independent.
-   - **Polish/low-urgency?** → Tier 3.
+   - **Independent and ready?** → Available → Independent.
+   - **Polish/low-urgency?** → Optional.
 4. If it forms a new chain (≥ 2 dependent tasks), create a chain block with a name and total.
 5. Propose the entry + placement to the user and wait for confirmation before editing.
 6. Keep entries terse — task name + `NK (Model)` only. The plan file holds the description.
 7. **Recompute every affected total on every change.** Any add, remove, or estimate edit cascades up:
    - the chain or section the task belongs to
    - the **Chains** subsection sum (if a chain changed)
-   - the **tier header** total (Tier 1/2/3)
+   - the **status header** total (In Progress / Available / Optional)
    - the **Grand total** at the top (always)
    Format: just the bold K next to the section name (e.g. `— **90K**`), no "total" word, no model label.
 
@@ -107,7 +107,8 @@ Always include the model name in brackets — no implicit defaults.
 
 ## Maintenance
 
-- When a chain parent is completed, **promote its child** from Tier 2 to Tier 1.
+- When a chain is started, **move it from Available to In Progress** and mark completed tasks with ✓.
+- When the entire chain is complete, **archive or remove it** from planning.
 - When a child has no remaining dependencies, **flatten its chain** (move to Independent).
 - When a task is added to `memory/todo.md`, also add it to `_planning.md`.
 
@@ -124,6 +125,6 @@ Steps:
 5. **Cascade totals up** (same as add):
    - the chain or section it belonged to
    - the **Chains** subsection sum (if a chain changed)
-   - the **tier header** total
+   - the **status header** total
    - the **Grand total** at the top
 6. If a chain or section now has zero entries, remove its header.

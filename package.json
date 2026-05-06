@@ -11,7 +11,13 @@
     "kill": "pkill -f 'server/index.js' || true",
     "test": "node --test server/*.test.js",
     "build": "vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "pg:shell": "docker exec -it rustsetspricing-postgres-1 psql -U rust -d rustsets",
+    "pg:logs": "docker logs -f rustsetspricing-postgres-1",
+    "pg:restart": "docker-compose restart postgres",
+    "docker:up": "docker-compose up -d",
+    "docker:down": "docker-compose down",
+    "docker:build": "docker-compose build"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.750.0",

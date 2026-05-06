@@ -4,11 +4,11 @@
 
 - Active tasks: [memory/todo.md](../memory/todo.md)
 - Completed history: [memory/done.md](../memory/done.md)
-- Per-feature plans: [memory/plans/](../memory/plans/)
+- Per-feature plans: [plans/](../plans/)
 
 ## Plan Files (one per feature)
 
-Every non-trivial feature/task gets its own plan file in `memory/plans/<feature-slug>.md`. The entry in `memory/todo.md` should be a single line linking to the plan, not an inline checklist.
+Every non-trivial feature/task gets its own plan file in `plans/<feature-slug>.md`. The entry in `memory/todo.md` should be a single line linking to the plan, not an inline checklist.
 
 **Plan file should contain:**
 - **Goal** — one-sentence description of what the feature does

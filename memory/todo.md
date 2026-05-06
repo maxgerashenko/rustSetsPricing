@@ -22,6 +22,9 @@
 ## Delete Sets
 - [ ] Implement delete sets feature — see [plans/delete-sets.md](plans/delete-sets.md)
 
+## Snackbar Confirmation
+- [ ] Add snackbar component with countdown-based confirm/cancel for destructive actions — see [plans/snackbar-confirm.md](plans/snackbar-confirm.md)
+
 ## Future Features
 - [ ] 24h trend delta per row: `▲` green / `▼` red (requires `trend` API field)
 - [ ] Show price as stale when cache TTL nearing expiry

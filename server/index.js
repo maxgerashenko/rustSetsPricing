@@ -250,6 +250,22 @@ app.get('/api/sets/:hash', async (req, res) => {
   res.json({ set_hash: setData.set_hash, items: itemNames })
 })
 
+app.delete('/api/sets/:hash', async (req, res) => {
+  const { hash } = req.params
+  if (!hash) return res.status(400).json({ error: 'hash required' })
+  try {
+    const result = await pool.query(
+      'DELETE FROM items_sets WHERE set_hash = $1',
+      [hash]
+    )
+    if (result.rowCount === 0) return res.status(404).json({ error: 'not found' })
+    res.status(204).end()
+  } catch (err) {
+    console.error('[Sets] delete error:', err.message)
+    res.status(500).json({ error: 'Failed to delete set' })
+  }
+})
+
 app.get('/api/images/:hash', async (req, res) => {
   const { hash } = req.params
   const key = `${hash}.png`

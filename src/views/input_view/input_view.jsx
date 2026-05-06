@@ -4,7 +4,7 @@ import { ArrowIcon, CheckIcon, PasteIcon } from '../../shared/icons.jsx'
 
 const cleanLines = text => text.split('\n').filter(val => val.trim()).join('\n')
 
-export default function InputView({ onSubmit }) {
+export default function InputView({ onSubmit, onViewSets }) {
   const [value, setValue] = useState(() => localStorage.getItem('lastList') ?? '')
   const [pasted, setPasted] = useState(false)
 
@@ -72,6 +72,16 @@ export default function InputView({ onSubmit }) {
         </div>
         <p className={styles.hint}>Pulls live community-market medians · refreshed every 5 min</p>
       </form>
+
+      {onViewSets && (
+        <button
+          className={styles.setsBtn}
+          type="button"
+          onClick={onViewSets}
+        >
+          View Your Sets →
+        </button>
+      )}
     </>
   )
 }

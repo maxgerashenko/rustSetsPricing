@@ -18,6 +18,7 @@ const fetchItem = async (name, signal) => {
 export default function ListView({ rawList, onBack }) {
   const [items, setItems] = useState([])
   const [currency, setCurrency] = useState('USD')
+  const [setHash, setSetHash] = useState(null)
 
   useEffect(() => {
     const names = parseItems(rawList)
@@ -46,12 +47,17 @@ export default function ListView({ rawList, onBack }) {
       const validHashes = hashes.filter(hash => hash != null)
       if (validHashes.length === 0) return
 
-      await fetch('/api/sets', {
+      const setRes = await fetch('/api/sets', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ items: names, hashes: validHashes }),
         signal: controller.signal,
-      }).catch(() => {})
+      }).catch(() => null)
+
+      if (setRes?.ok) {
+        const data = await setRes.json()
+        setSetHash(data.set_hash)
+      }
     }
 
     run()
@@ -65,7 +71,7 @@ export default function ListView({ rawList, onBack }) {
 
       <div className={styles.card}>
         <ItemsList items={items} currency={currency} />
-        <ListControls items={items} currency={currency} onEdit={onBack} />
+        <ListControls items={items} currency={currency} setHash={setHash} onEdit={onBack} />
       </div>
 
       <button className={styles.foothint} type="button" onClick={onBack}>

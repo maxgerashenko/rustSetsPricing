@@ -184,10 +184,29 @@ app.post('/api/sets', async (req, res) => {
 })
 
 app.get('/api/sets/:hash', async (req, res) => {
+  const { loc = 'eng' } = req.query
   const { rows } = await pool.query('SELECT * FROM items_sets WHERE set_hash = $1', [req.params.hash])
   if (rows.length === 0) { res.status(404).end(); return }
 
-  res.json(rows[0])
+  const setData = rows[0]
+  const hashes = setData.items
+
+  const locTable = `loc_${loc}`
+  let nameRows = { rows: [] }
+  try {
+    nameRows = await pool.query(
+      `SELECT hash, name FROM ${locTable} WHERE hash = ANY($1)`,
+      [hashes]
+    )
+  } catch (err) {
+    console.error(`[Sets] lookup failed for ${locTable}:`, err.message)
+  }
+
+  console.log(`[Sets] found ${nameRows.rows.length} names for ${hashes.length} hashes`)
+  const hashToName = Object.fromEntries(nameRows.rows.map(r => [r.hash, r.name]))
+  const itemNames = hashes.map(h => hashToName[h]).filter(Boolean)
+
+  res.json({ set_hash: setData.set_hash, items: itemNames })
 })
 
 app.get('/api/images/:hash', async (req, res) => {

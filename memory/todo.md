@@ -40,6 +40,9 @@
 ## Price Trend & Staleness
 - [ ] 24h trend delta per row (`▲ +$0.05 (4.2%)`) + stale price indicator near TTL expiry — see [plans/price-trend-and-staleness.md](plans/price-trend-and-staleness.md)
 
+## Set Total — Cached + 24h Trend
+- [ ] Cache set total (24h window) on `items_sets`; recompute only on individual set load; list/recent views read cached total only, no item fetches — see [plans/set-cached-total.md](plans/set-cached-total.md)
+
 ## Ops
 - [ ] Add `.env.example` with all required vars documented
 - [ ] Add `server` container healthcheck to docker-compose

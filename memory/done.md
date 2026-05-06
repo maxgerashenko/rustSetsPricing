@@ -16,6 +16,7 @@
 - [x] `Cache-Control: public, max-age=14400` on `/api/item` for browser caching
 - [x] `POST /api/sets` and `GET /api/sets/:hash` backend endpoints with share/load flow
 - [x] `GET /api/sets` endpoint — fetches all saved sets with item data and prices
+- [x] `DELETE /api/sets/:hash` endpoint — permanently removes a set from `items_sets`
 
 ## Infrastructure & Organization
 - [x] Docker Compose with app, Postgres 16, MinIO containers; health checks on db/minio

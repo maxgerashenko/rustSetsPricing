@@ -7,6 +7,7 @@ import SetsList from './views/sets_list/sets_list.jsx'
 
 function ListViewPage() {
   const [list, setList] = useState(null)
+  const [loading, setLoading] = useState(true)
   const navigate = useNavigate()
   const location = useLocation()
   const [searchParams] = useSearchParams()
@@ -15,6 +16,7 @@ function ListViewPage() {
     // Check if list was passed via state (from input form submission)
     if (location.state?.list) {
       setList(location.state.list)
+      setLoading(false)
       return
     }
 
@@ -28,11 +30,23 @@ function ListViewPage() {
         .then(data => {
           if (data?.items) {
             setList(data.items.join('\n'))
+          } else {
+            setList('')
           }
+          setLoading(false)
         })
-        .catch(() => {})
+        .catch(() => {
+          setLoading(false)
+        })
+    } else {
+      setList('')
+      setLoading(false)
     }
   }, [location.state, searchParams])
+
+  if (loading) {
+    return <div>Loading...</div>
+  }
 
   return (
     <ListView

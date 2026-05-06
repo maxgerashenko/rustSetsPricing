@@ -162,6 +162,47 @@ app.get('/api/item', async (req, res) => {
 
 const hash64 = val => createHash('sha256').update(val).digest().readBigUInt64BE(0).toString(16).padStart(16, '0')
 
+app.get('/api/sets', async (req, res) => {
+  try {
+    const { rows: sets } = await pool.query(
+      'SELECT set_hash, items, created_at FROM items_sets ORDER BY created_at DESC'
+    )
+
+    const setsData = await Promise.all(sets.map(async (set) => {
+      const { rows: names } = await pool.query(
+        'SELECT hash, name FROM loc_eng WHERE hash = ANY($1)',
+        [set.items]
+      )
+
+      const hashToName = Object.fromEntries(names.map(r => [r.hash, r.name]))
+      const itemNames = set.items.map(h => hashToName[h]).filter(Boolean)
+
+      const { rows: items } = await pool.query(
+        'SELECT name, price, hash FROM items WHERE name = ANY($1)',
+        [itemNames]
+      )
+
+      const itemData = items.map(item => ({
+        name: item.name,
+        price: item.price,
+        hash: item.hash,
+        url: item.hash ? `/api/images/${item.hash}` : null,
+      }))
+
+      return {
+        hash: set.set_hash,
+        items: itemData,
+        createdAt: set.created_at,
+      }
+    }))
+
+    res.json(setsData)
+  } catch (err) {
+    console.error('[Sets] error fetching all sets:', err.message)
+    res.status(500).json({ error: 'Failed to fetch sets' })
+  }
+})
+
 app.post('/api/sets', async (req, res) => {
   const { items, hashes } = req.body
   if (Array.isArray(items) == false || items.length === 0) { res.status(400).end(); return }

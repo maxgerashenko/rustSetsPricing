@@ -19,6 +19,9 @@
 ## Slot Keyword Review (human-in-the-loop)
 - [ ] Review queue + `/api/slot-proposals` endpoints for medium-confidence agent suggestions; tiered routing in the agent script — see [plans/slot-keyword-review.md](plans/slot-keyword-review.md)
 
+## Delete Sets
+- [ ] Implement delete sets feature — see [plans/delete-sets.md](plans/delete-sets.md)
+
 ## Future Features
 - [ ] 24h trend delta per row: `▲` green / `▼` red (requires `trend` API field)
 - [ ] Show price as stale when cache TTL nearing expiry

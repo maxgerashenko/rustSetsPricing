@@ -4,6 +4,28 @@
 
 - Active tasks: [memory/todo.md](../memory/todo.md)
 - Completed history: [memory/done.md](../memory/done.md)
+- Per-feature plans: [memory/plans/](../memory/plans/)
+
+## Plan Files (one per feature)
+
+Every non-trivial feature/task gets its own plan file in `memory/plans/<feature-slug>.md`. The entry in `memory/todo.md` should be a single line linking to the plan, not an inline checklist.
+
+**Plan file should contain:**
+- **Goal** — one-sentence description of what the feature does
+- **Current state** — what exists, what's missing (with file:line refs)
+- **Steps** — concrete implementation steps with code snippets where helpful
+- **Out of scope** — explicit list of what's NOT being built (defer items)
+- **Recommended model** — which model fits per [rules/models.md](models.md)
+
+**When to create a plan file:**
+- Feature spans multiple files or domains
+- Task requires design decisions
+- Work will take more than one short session
+
+**When NOT to create one:**
+- One-line CSS tweaks, typo fixes, config changes — keep these inline in `todo.md`
+
+When the plan is fully implemented, move the plan file (or a summary of it) to `memory/done.md` per the cleanup rules below, and delete the plan file.
 
 ## Cleanup Rules
 

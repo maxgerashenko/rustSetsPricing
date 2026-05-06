@@ -40,4 +40,5 @@ Keep responses under 1500 tokens. If a complete answer requires more, stop and a
 - Backend (`server/`): [rules/backend.md](rules/backend.md)
 - Context: [rules/context.md](rules/context.md)
 - TODO management: [rules/todo.md](rules/todo.md)
+- Planning / next-task selection: [rules/planning.md](rules/planning.md)
 - Model selection: [rules/models.md](rules/models.md)

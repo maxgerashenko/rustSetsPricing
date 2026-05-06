@@ -25,18 +25,25 @@ Every non-trivial feature/task gets its own plan file in `plans/<feature-slug>.m
 **When NOT to create one:**
 - One-line CSS tweaks, typo fixes, config changes — keep these inline in `todo.md`
 
-**After finishing a plan file:** ask the user whether to add a corresponding entry to `memory/todo.md` linking to the new plan. Wait for confirmation before editing `todo.md`.
+**After finishing a plan file:**
+1. Estimate the task's token cost and pick the best-fit model (see [rules/planning.md](planning.md) → "How to estimate token cost").
+2. Propose to the user: (a) the new entry for `memory/todo.md` linking to the plan, and (b) where it goes in `plans/_planning.md` with the `NK (Model)` estimate.
+3. Wait for confirmation before editing either file. Update both together so they stay in sync.
 
 When the plan is fully implemented, move the plan file (or a summary of it) to `memory/done.md` per the cleanup rules below, and delete the plan file.
 
 ## Cleanup Rules
 
-After completing work on a section in `memory/todo.md`:
+**When you think a task is complete, propose the todo changes (what to remove, what to add to done) and wait for a "yes" before editing.**
+
+After confirming with the user, after completing work on a section in `memory/todo.md`:
 
 1. **Move worth-keeping completions to `memory/done.md`** — append under the appropriate section (see "What to Record as Done" below)
 2. **Delete completed items** from `memory/todo.md`
 3. **Delete empty sections** in `memory/todo.md` — remove the section header if no tasks remain
 4. **Keep only incomplete tasks** visible in `memory/todo.md`
+5. **Delete the plan file** from `plans/` once implemented
+6. **Remove the entry from `plans/_planning.md`** and cascade totals up (chain → Chains subsection → tier header → Grand total) per [rules/planning.md](planning.md) → "How to remove a planning entry"
 
 ## What to Record as Done
 

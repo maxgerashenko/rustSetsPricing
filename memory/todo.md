@@ -33,6 +33,9 @@
 ## Set Total — Cached + 24h Trend
 - [ ] Cache set total (24h window) on `items_sets`; recompute only on individual set load; list/recent views read cached total only, no item fetches — see [plans/set-cached-total.md](plans/set-cached-total.md)
 
+## Input Hint Accuracy
+- [ ] Replace misleading "refreshed every 5 min" hint with copy reflecting Steam's 24h median + actual 4h server cache — see [plans/input-hint-accuracy.md](plans/input-hint-accuracy.md)
+
 ## Ops
 - [ ] Add `.env.example` with all required vars documented
 - [ ] Add `server` container healthcheck to docker-compose

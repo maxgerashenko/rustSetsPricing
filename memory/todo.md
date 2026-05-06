@@ -1,15 +1,5 @@
 # TODO
 
-## Screen 3 — Edit (Priority)
-- [ ] Create `EditScreen` component: 4-col edit rows (drag handle · thumb · input · delete), add item footer, Cancel/Save actions
-- [ ] Drag-and-drop reorder via handle; drop target highlights
-- [ ] Keyboard support: `Enter` adds row below, `Backspace` on empty removes row
-- [ ] Update App state machine: `'input' | 'results' | 'edit'` (currently boolean `list`/`!list`)
-- [ ] Edit flow: save edits → reprice items → return to Results
-
-## API Extensions item
-- [ ] Extend `/api/item` to return `slot` (e.g., `Head`, `Chest`) and `trend` (24h delta)
-
 ## Sorting / Slot Priorities
 - [ ] Move `ITEM_PRIORITY` to `slot_priorities` table; sort on backend; add `/api/slots` CRUD — see [plans/move-item-priority-to-db.md](plans/move-item-priority-to-db.md)
 

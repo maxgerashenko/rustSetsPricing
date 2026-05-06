@@ -1,15 +1,26 @@
+import { Routes, Route, useNavigate, useSearchParams, useLocation, Navigate } from 'react-router-dom'
 import { useState, useEffect } from 'react'
 import styles from './app.module.css'
 import InputView from './views/input_view/input_view.jsx'
 import ListView from './views/list_view/list_view.jsx'
+import SetsList from './views/sets_list/sets_list.jsx'
 
-export default function App() {
+function ListViewPage() {
   const [list, setList] = useState(null)
+  const navigate = useNavigate()
+  const location = useLocation()
+  const [searchParams] = useSearchParams()
 
   useEffect(() => {
-    const params = new URLSearchParams(window.location.search)
-    const setHash = params.get('set')
-    const loc = params.get('loc') || 'eng'
+    // Check if list was passed via state (from input form submission)
+    if (location.state?.list) {
+      setList(location.state.list)
+      return
+    }
+
+    // Otherwise, try to load from set hash parameter
+    const setHash = searchParams.get('set')
+    const loc = searchParams.get('loc') || 'eng'
 
     if (setHash) {
       fetch(`/api/sets/${setHash}?loc=${loc}`)
@@ -21,7 +32,18 @@ export default function App() {
         })
         .catch(() => {})
     }
-  }, [])
+  }, [location.state, searchParams])
+
+  return (
+    <ListView
+      rawList={list}
+      onBack={() => navigate('/')}
+    />
+  )
+}
+
+export default function App() {
+  const navigate = useNavigate()
 
   return (
     <div className={styles.page}>
@@ -35,10 +57,28 @@ export default function App() {
           <span className={styles.accent}>skin set</span>
         </h1>
 
-        {list
-          ? <ListView rawList={list} onBack={() => setList(null)} />
-          : <InputView onSubmit={setList} />
-        }
+        <Routes>
+          <Route
+            path="/"
+            element={
+              <InputView
+                onSubmit={(list) => {
+                  navigate('/list', { state: { list } })
+                }}
+                onViewSets={() => navigate('/sets')}
+              />
+            }
+          />
+          <Route
+            path="/list"
+            element={<ListViewPage />}
+          />
+          <Route
+            path="/sets"
+            element={<SetsList onBack={() => navigate('/')} />}
+          />
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </Routes>
       </div>
     </div>
   )

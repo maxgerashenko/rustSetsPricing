@@ -28,6 +28,9 @@
 ## Sets Count Status Bar
 - [ ] Add count + tagline status bar at bottom of Sets List view, styled like input view's `parseRow` — see [plans/sets-count-bar.md](plans/sets-count-bar.md)
 
+## Localization
+- [ ] Always source item names from `loc_<lang>` (default `loc_eng`) via `?loc=` param; `items.name` unchanged — see [plans/localization.md](plans/localization.md)
+
 ## Future Features
 - [ ] 24h trend delta per row: `▲` green / `▼` red (requires `trend` API field)
 - [ ] Show price as stale when cache TTL nearing expiry

@@ -25,6 +25,8 @@ Every non-trivial feature/task gets its own plan file in `plans/<feature-slug>.m
 **When NOT to create one:**
 - One-line CSS tweaks, typo fixes, config changes — keep these inline in `todo.md`
 
+**After finishing a plan file:** ask the user whether to add a corresponding entry to `memory/todo.md` linking to the new plan. Wait for confirmation before editing `todo.md`.
+
 When the plan is fully implemented, move the plan file (or a summary of it) to `memory/done.md` per the cleanup rules below, and delete the plan file.
 
 ## Cleanup Rules

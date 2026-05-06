@@ -26,6 +26,17 @@ export default function SetsList({ onBack }) {
     fetchSets()
   }, [])
 
+  const handleDelete = async (setHash) => {
+    try {
+      const res = await fetch(`/api/sets/${setHash}`, { method: 'DELETE' })
+      if (res.ok) {
+        setSets(sets.filter(set => set.hash !== setHash))
+      }
+    } catch (err) {
+      console.error('Failed to delete set:', err)
+    }
+  }
+
   return (
     <div className={`${styles.container} ${appStyles.fadeIn}`}>
       <div className={styles.header}>
@@ -57,6 +68,7 @@ export default function SetsList({ onBack }) {
               key={set.hash}
               set={set}
               currency={currency}
+              onDelete={handleDelete}
             />
           ))}
         </div>

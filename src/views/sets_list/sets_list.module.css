@@ -80,22 +80,37 @@
   background: var(--text-faint);
 }
 
-.card {
+.cardWrapper {
   width: 100%;
+  display: flex;
+  gap: 0;
+  align-items: stretch;
+  flex-shrink: 0;
+}
+
+.card {
+  flex: 1;
   background: var(--bg-elev);
   border: 1px solid var(--line);
   border-radius: var(--radius-card);
   overflow: hidden;
   display: flex;
   align-items: stretch;
-  transition: border-color 120ms ease, box-shadow 120ms ease;
-  flex-shrink: 0;
+  transition: border-color 120ms ease, box-shadow 120ms ease, border-radius 120ms ease;
   cursor: pointer;
 }
 
 .card:hover {
-  border-color: var(--accent-line);
+  border-color: var(--accent);
+  background: var(--bg-elev-2);
   box-shadow: 0 30px 60px -30px rgba(0, 0, 0, 0.6);
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
+}
+
+.cardWrapper:hover .card {
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
 }
 
 .setContent {
@@ -169,6 +184,11 @@
   font-size: 18px;
   font-weight: 600;
   color: var(--accent);
+  transition: color 120ms ease;
+}
+
+.card:hover .totalPrice {
+  color: var(--accent-text);
 }
 
 .loading,
@@ -201,4 +221,44 @@
 
 .foothint:hover {
   color: var(--accent);
+}
+
+.deleteButton {
+  width: 0;
+  background: rgba(205, 65, 43, 0.15);
+  color: var(--accent-text);
+  border: 1px solid var(--accent-line);
+  border-radius: var(--radius-card);
+  padding: 0;
+  font-family: var(--font-ui);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  white-space: nowrap;
+  transition: width 200ms ease, opacity 200ms ease, background 120ms ease, border-color 120ms ease, border-radius 120ms ease;
+  flex-shrink: 0;
+  overflow: hidden;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.cardWrapper:hover .deleteButton {
+  width: 80px;
+  opacity: 1;
+  pointer-events: auto;
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
+}
+
+.deleteButton:hover {
+  background: rgba(205, 65, 43, 0.35);
+  border-color: var(--accent);
+}
+
+.deleteButton:active {
+  background: rgba(205, 65, 43, 0.45);
+  border-color: var(--accent);
 }

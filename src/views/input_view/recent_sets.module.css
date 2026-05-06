@@ -1,6 +1,6 @@
 .recent {
   width: 100%;
-  margin-bottom: 0;
+  margin-bottom: 16px;
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: var(--radius);
@@ -11,7 +11,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 8px 1.1rem;
+  padding: 8px 18px;
   border-top: 1px solid var(--line);
   background: var(--bg-elev-2);
   font-family: var(--font-mono);
@@ -51,14 +51,16 @@
   display: flex;
   flex-direction: column;
   gap: 0;
+  padding: 0 18px;
 }
 
 .row {
   display: flex;
   align-items: center;
   gap: 12px;
-  padding: 8px 1.1rem;
-  margin: 0 -1.1rem;
+  padding: 4px 18px;
+  margin: 0 -18px;
+  width: calc(100% + 36px);
   background: transparent;
   border: none;
   border-bottom: 1px solid var(--line);
@@ -66,13 +68,8 @@
   transition: background 120ms ease;
 }
 
-.row:first-child {
-  padding-top: 8px;
-}
-
 .row:last-child {
   border-bottom: none;
-  padding-bottom: 8px;
 }
 
 .row:hover {
@@ -81,7 +78,8 @@
 
 .icons {
   display: flex;
-  gap: 2px;
+  flex-wrap: wrap;
+  gap: 8px;
   flex: 1;
   min-width: 0;
   padding: 4px 0;

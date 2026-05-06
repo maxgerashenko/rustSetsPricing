@@ -46,7 +46,7 @@ export default function RecentSets({ onViewAll }) {
               onClick={() => handleSetClick(set.hash)}
             >
               <div className={styles.icons}>
-                {sortedItems.slice(0, 4).map((item, idx) => (
+                {sortedItems.map((item, idx) => (
                   <div key={idx} className={styles.icon}>
                     {item.url
                       ? (

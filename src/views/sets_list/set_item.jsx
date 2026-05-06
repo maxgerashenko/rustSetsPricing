@@ -1,11 +1,13 @@
 import { useNavigate } from 'react-router-dom'
 import styles from './sets_list.module.css'
 import { parseDollars, formatPrice } from '../../shared/utils.js'
+import { sortItems } from '../../shared/itemSorting.js'
 
 export default function SetItem({ set, currency, onDelete }) {
   const total = set.items.reduce((sum, item) => sum + (parseDollars(item.price) || 0), 0)
   const setHash = set.hash
   const navigate = useNavigate()
+  const sortedItems = sortItems(set.items)
 
   const handleSetClick = () => {
     navigate(`/list?set=${setHash}`)
@@ -34,7 +36,7 @@ export default function SetItem({ set, currency, onDelete }) {
       >
         <div className={styles.setContent}>
           <div className={styles.icons}>
-            {set.items.map((item, idx) => (
+            {sortedItems.map((item, idx) => (
               <div key={idx} className={styles.iconWrapper}>
                 <div className={styles.icon}>
                   {item.url

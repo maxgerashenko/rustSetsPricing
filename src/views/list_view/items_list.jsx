@@ -1,12 +1,14 @@
 import styles from './list_view.module.css'
 import { API_IMAGES } from '../../shared/constants.js'
 import { parseDollars, formatPrice, getMarketUrl } from '../../shared/utils.js'
+import { sortItems } from '../../shared/itemSorting.js'
 import { getItemStats } from './list_info.jsx'
 
 const isUnresolved = val => val.status === 'error' || (val.status === 'done' && !val.price)
 
 export default function ItemsList({ items, currency }) {
   const { resolved, total, allDone, topItem } = getItemStats(items)
+  const sortedItems = sortItems(items)
 
   const handleItemClick = (url) => {
     if (url) window.open(url, '_blank')
@@ -15,7 +17,7 @@ export default function ItemsList({ items, currency }) {
   return (
     <>
       <ul className={styles.list}>
-        {items.map(val => {
+        {sortedItems.map(val => {
           const unresolved = isUnresolved(val)
           const itemLoading = val.status === 'loading'
           const priceNum = parseDollars(val.price)

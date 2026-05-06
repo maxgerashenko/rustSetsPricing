@@ -92,12 +92,20 @@
   align-items: center;
   gap: 16px;
   padding: 6px 12px;
-  border-top: 1px solid var(--line);
-  transition: opacity 120ms ease;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-card);
+  background: var(--bg-elev);
+  transition: opacity 120ms ease, border-color 120ms ease, background 120ms ease;
+  cursor: pointer;
 }
 
 .item:first-child {
-  border-top: 0;
+  border-top: 1px solid var(--line);
+}
+
+.item:hover {
+  border-color: var(--accent);
+  background: var(--bg-elev-2);
 }
 
 .itemLoading {
@@ -113,6 +121,12 @@
   overflow: hidden;
   display: grid;
   place-items: center;
+  transition: border-color 120ms ease;
+  cursor: pointer;
+}
+
+.thumb:hover {
+  border-color: var(--accent);
 }
 
 .thumb img {
@@ -139,18 +153,16 @@
   flex-direction: column;
   gap: 2px;
   min-width: 0;
+  transition: color 120ms ease;
 }
 
-.name a {
-  color: inherit;
-  text-decoration: none;
-  transition: color 120ms ease;
+.name span {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
-.name a:hover {
+.item:hover .name {
   color: var(--accent);
 }
 
@@ -171,8 +183,9 @@
   font-variant-numeric: tabular-nums;
   font-size: 15px;
   font-weight: 600;
-  color: var(--text);
+  color: var(--accent);
   text-align: right;
+  transition: opacity 120ms ease;
 }
 
 .notFound {
@@ -254,8 +267,8 @@
 .totalAmount {
   font-family: var(--font-mono);
   font-variant-numeric: tabular-nums;
-  font-size: 22px;
-  font-weight: 700;
+  font-size: 18px;
+  font-weight: 600;
   color: var(--accent);
 }
 

@@ -8,6 +8,10 @@ const isUnresolved = val => val.status === 'error' || (val.status === 'done' && 
 export default function ItemsList({ items, currency }) {
   const { resolved, total, allDone, topItem } = getItemStats(items)
 
+  const handleItemClick = (url) => {
+    if (url) window.open(url, '_blank')
+  }
+
   return (
     <>
       <ul className={styles.list}>
@@ -20,19 +24,22 @@ export default function ItemsList({ items, currency }) {
             <li
               key={val.name}
               className={`${styles.item} ${itemLoading ? styles.itemLoading : ''} ${unresolved ? styles.itemUnresolved : ''}`}
+              onClick={() => handleItemClick(getMarketUrl(val.name))}
             >
-              <div className={styles.thumb}>
+              <div
+                className={styles.thumb}
+                onClick={(e) => {
+                  e.stopPropagation()
+                  if (val.url) window.open(val.url, '_blank')
+                }}
+              >
                 {val.url
-                  ? <a href={val.url} target="_blank" rel="noreferrer">
-                      <img src={`${API_IMAGES}${val.hash}`} alt={val.name} width={96} height={86} />
-                    </a>
+                  ? <img src={`${API_IMAGES}${val.hash}`} alt={val.name} width={96} height={86} />
                   : <div className={styles.thumbPlaceholder} />
                 }
               </div>
               <div className={styles.name}>
-                <a href={getMarketUrl(val.name)} target="_blank" rel="noreferrer">
-                  {val.name}
-                </a>
+                <span>{val.name}</span>
                 {unresolved && <span className={styles.meta}>Unmatched</span>}
               </div>
               <div className={styles.price}>

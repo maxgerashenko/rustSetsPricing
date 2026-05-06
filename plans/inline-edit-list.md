@@ -79,15 +79,9 @@ Edge case: if user edits before initial set creation finishes, queue the rename 
 - Delete the primary `Edit List` button from [list_controls.jsx:32-35](src/views/list_view/list_controls.jsx#L32-L35).
 - Drop the `onEdit` prop from `ListControls` and from the `<ListControls>` call in `list_view.jsx` (the `onBack`/foothint still handles "new list").
 
-### 5. Bottom buttons — two options
-Replace the single foothint with two side-by-side buttons in [list_view.jsx:77-79](src/views/list_view/list_view.jsx#L77-L79):
-- `← NEW LIST` (existing `onBack`)
-- `All sets` → `navigate('/sets')` (or pass `onAllSets` prop wired up in `app.jsx`)
-
-Add a `.foothintRow` flex container in CSS, keep the `.foothint` styling for both buttons.
-
 ## Out of scope
 
+- Adding a second bottom-row "All sets" button — see [plans/results-all-sets-button.md](results-all-sets-button.md).
 - Adding new rows or deleting rows inline (the original "Screen 3 — Edit" plan covered this; this plan only handles **rename**).
 - Drag reorder.
 - Optimistic price for the new item — show a loading skeleton until the fetch returns (consistent with initial load).

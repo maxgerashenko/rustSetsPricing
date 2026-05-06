@@ -34,7 +34,10 @@
 - [ ] Cache set total (24h window) on `items_sets`; recompute only on individual set load; list/recent views read cached total only, no item fetches — see [plans/set-cached-total.md](plans/set-cached-total.md)
 
 ## Inline Edit on Results View
-- [ ] Per-row hover-reveal Edit button on results view; rename only refetches changed item, deletes old set and creates new set (new hash); remove Edit List button; bottom row shows `← NEW LIST` + `All sets` — see [plans/inline-edit-list.md](plans/inline-edit-list.md)
+- [ ] Per-row hover-reveal Edit button on results view; rename only refetches changed item, deletes old set and creates new set (new hash); remove Edit List button — see [plans/inline-edit-list.md](plans/inline-edit-list.md)
+
+## All Sets Button on Results View
+- [ ] Add a second bottom-row button on results view next to `← NEW LIST` that navigates to sets list — see [plans/results-all-sets-button.md](plans/results-all-sets-button.md)
 
 ## Input Hint Accuracy
 - [ ] Replace misleading "refreshed every 5 min" hint with copy reflecting Steam's 24h median + actual 4h server cache — see [plans/input-hint-accuracy.md](plans/input-hint-accuracy.md)

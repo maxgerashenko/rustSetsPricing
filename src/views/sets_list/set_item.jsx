@@ -24,8 +24,8 @@ export default function SetItem({ set, currency }) {
                       src={item.url}
                       alt={item.name}
                       title={item.name}
-                      width={64}
-                      height={64}
+                      width={48}
+                      height={48}
                     />
                   )
                   : <div className={styles.iconPlaceholder} />

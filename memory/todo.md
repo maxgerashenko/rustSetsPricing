@@ -1,0 +1,47 @@
+# TODO
+
+## Sorting / Slot Priorities
+- [ ] Move `ITEM_PRIORITY` to `slot_priorities` table; sort on backend; add `/api/slots` CRUD — see [plans/move-item-priority-to-db.md](plans/move-item-priority-to-db.md)
+
+## Slot Keyword Agent (script)
+- [ ] Scheduled Node script using Claude Haiku 4.5 to scan unmatched items and auto-apply high-confidence keyword additions to `slot_priorities`; audit log in `slot_keyword_changes` — see [plans/slot-keyword-agent-script.md](plans/slot-keyword-agent-script.md)
+
+## Slot Keyword Review (human-in-the-loop)
+- [ ] Review queue + `/api/slot-proposals` endpoints for medium-confidence agent suggestions; tiered routing in the agent script — see [plans/slot-keyword-review.md](plans/slot-keyword-review.md)
+
+## Delete Sets
+- [ ] Implement delete sets feature — see [plans/delete-sets.md](plans/delete-sets.md)
+
+## Snackbar Confirmation
+- [ ] Add snackbar component with countdown-based confirm/cancel for destructive actions — see [plans/snackbar-confirm.md](plans/snackbar-confirm.md)
+
+## Sets Count Status Bar
+- [ ] Add count + tagline status bar at bottom of Sets List view, styled like input view's `parseRow` — see [plans/sets-count-bar.md](plans/sets-count-bar.md)
+
+## Localization
+- [ ] Always source item names from `loc_<lang>` (default `loc_eng`) via `?loc=` param; `items.name` unchanged — see [plans/localization.md](plans/localization.md)
+
+## Set Last-Loaded Timestamp
+- [ ] Track `last_loaded_at` on sets, bumped on GET and on manual re-entry — see [plans/set-last-loaded-timestamp.md](plans/set-last-loaded-timestamp.md)
+
+## Recent Sets on Input Page
+- [ ] Show 3 most recently loaded sets under title on input view, with `parseRow`-style header (`N · sets saved` + `View all` link); remove bottom `setsBtn` — see [plans/recent-sets-on-input.md](plans/recent-sets-on-input.md)
+
+## Price Trend & Staleness
+- [ ] 24h trend delta per row (`▲ +$0.05 (4.2%)`) + stale price indicator near TTL expiry — see [plans/price-trend-and-staleness.md](plans/price-trend-and-staleness.md)
+
+## Set Total — Cached + 24h Trend
+- [ ] Cache set total (24h window) on `items_sets`; recompute only on individual set load; list/recent views read cached total only, no item fetches — see [plans/set-cached-total.md](plans/set-cached-total.md)
+
+## Inline Edit on Results View
+- [ ] Per-row hover-reveal Edit button on results view; rename only refetches changed item, deletes old set and creates new set (new hash); remove Edit List button — see [plans/inline-edit-list.md](plans/inline-edit-list.md)
+
+## All Sets Button on Results View
+- [ ] Add a second bottom-row button on results view next to `← NEW LIST` that navigates to sets list — see [plans/results-all-sets-button.md](plans/results-all-sets-button.md)
+
+## Input Hint Accuracy
+- [ ] Replace misleading "refreshed every 5 min" hint with copy reflecting Steam's 24h median + actual 4h server cache — see [plans/input-hint-accuracy.md](plans/input-hint-accuracy.md)
+
+## Ops
+- [ ] Add `.env.example` with all required vars documented
+- [ ] Add `server` container healthcheck to docker-compose

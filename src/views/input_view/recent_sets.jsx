@@ -33,15 +33,6 @@ export default function RecentSets({ onViewAll }) {
 
   return (
     <section className={styles.recent}>
-      <div className={styles.header}>
-        <span className={styles.count}>
-          <b>{data.total}</b> · {data.total === 1 ? 'set' : 'sets'} saved
-        </span>
-        <button className={styles.viewAll} type="button" onClick={onViewAll}>
-          View all
-        </button>
-      </div>
-
       <div className={styles.list}>
         {data.sets.map(set => {
           const total = set.items.reduce((sum, item) => sum + (parseDollars(item.price) || 0), 0)
@@ -76,6 +67,15 @@ export default function RecentSets({ onViewAll }) {
             </button>
           )
         })}
+      </div>
+
+      <div className={styles.header}>
+        <span className={styles.count}>
+          <b>{data.total}</b> · {data.total === 1 ? 'set' : 'sets'} saved
+        </span>
+        <button className={styles.viewAll} type="button" onClick={onViewAll}>
+          View all
+        </button>
       </div>
     </section>
   )

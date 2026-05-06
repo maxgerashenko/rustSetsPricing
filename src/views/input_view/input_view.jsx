@@ -44,8 +44,8 @@ export default function InputView({ onSubmit, onViewSets, onOpenSet }) {
 
   return (
     <>
-      <RecentSets onViewAll={onViewSets} />
       <form className={`${styles.form} ${styles.fadeIn}`} onSubmit={handleSubmit}>
+        <RecentSets onViewAll={onViewSets} />
         <div className={styles.inputWrapper}>
           <textarea
             className={styles.input}

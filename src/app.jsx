@@ -80,6 +80,7 @@ export default function App() {
                   navigate('/list', { state: { list } })
                 }}
                 onViewSets={() => navigate('/sets')}
+                onOpenSet={(hash) => navigate(`/list?set=${hash}`)}
               />
             }
           />

@@ -5,15 +5,11 @@ See [rules/planning.md](../rules/planning.md) for selection rules.
 
 **Token estimates** are in `K` for the **preferred model** shown in brackets. Haiku's 44K / 5h limit is the reference budget for Haiku tasks; Sonnet/Opus tasks are sized for their own session budgets.
 
-## Grand total — **227K**
+## Grand total — **204K**
 
 ---
 
-## In Progress — **23K**
-
-**Set loading** — **23K**
-1. ✓ [set-last-loaded-timestamp](set-last-loaded-timestamp.md) — **8K (Haiku)**
-2. [recent-sets-on-input](recent-sets-on-input.md) — **15K (Haiku)**
+## In Progress — **0K**
 
 ---
 

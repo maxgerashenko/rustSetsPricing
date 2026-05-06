@@ -1,10 +1,11 @@
 import { useMemo, useState } from 'react'
 import styles from '../../app.module.css'
 import { ArrowIcon, CheckIcon, PasteIcon } from '../../shared/icons.jsx'
+import RecentSets from './recent_sets.jsx'
 
 const cleanLines = text => text.split('\n').filter(val => val.trim()).join('\n')
 
-export default function InputView({ onSubmit, onViewSets }) {
+export default function InputView({ onSubmit, onViewSets, onOpenSet }) {
   const [value, setValue] = useState(() => localStorage.getItem('lastList') ?? '')
   const [pasted, setPasted] = useState(false)
 
@@ -43,6 +44,7 @@ export default function InputView({ onSubmit, onViewSets }) {
 
   return (
     <>
+      <RecentSets onViewAll={onViewSets} />
       <form className={`${styles.form} ${styles.fadeIn}`} onSubmit={handleSubmit}>
         <div className={styles.inputWrapper}>
           <textarea
@@ -72,16 +74,6 @@ export default function InputView({ onSubmit, onViewSets }) {
         </div>
         <p className={styles.hint}>Pulls live community-market medians · refreshed every 5 min</p>
       </form>
-
-      {onViewSets && (
-        <button
-          className={styles.setsBtn}
-          type="button"
-          onClick={onViewSets}
-        >
-          View Your Sets →
-        </button>
-      )}
     </>
   )
 }

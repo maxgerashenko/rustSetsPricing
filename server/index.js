@@ -164,9 +164,15 @@ const hash64 = val => createHash('sha256').update(val).digest().readBigUInt64BE(
 
 app.get('/api/sets', async (req, res) => {
   try {
-    const { rows: sets } = await pool.query(
-      'SELECT set_hash, items, created_at, last_loaded_at FROM items_sets ORDER BY last_loaded_at DESC NULLS LAST'
-    )
+    const limit = Number.parseInt(req.query.limit, 10)
+    const limitClause = Number.isFinite(limit) && limit > 0 ? ` LIMIT ${limit}` : ''
+
+    const [{ rows: sets }, { rows: countRows }] = await Promise.all([
+      pool.query(
+        `SELECT set_hash, items, created_at, last_loaded_at FROM items_sets ORDER BY last_loaded_at DESC NULLS LAST${limitClause}`
+      ),
+      pool.query('SELECT COUNT(*)::int AS total FROM items_sets'),
+    ])
 
     const setsData = await Promise.all(sets.map(async (set) => {
       const { rows: names } = await pool.query(
@@ -197,7 +203,7 @@ app.get('/api/sets', async (req, res) => {
       }
     }))
 
-    res.json(setsData)
+    res.json({ total: countRows[0].total, sets: setsData })
   } catch (err) {
     console.error('[Sets] error fetching all sets:', err.message)
     res.status(500).json({ error: 'Failed to fetch sets' })

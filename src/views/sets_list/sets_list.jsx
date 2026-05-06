@@ -14,7 +14,7 @@ export default function SetsList({ onBack }) {
         const res = await fetch('/api/sets')
         if (res.ok) {
           const data = await res.json()
-          setSets(data)
+          setSets(data.sets)
         }
       } catch (err) {
         console.error('Failed to fetch sets:', err)

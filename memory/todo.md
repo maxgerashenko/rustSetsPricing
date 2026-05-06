@@ -37,9 +37,8 @@
 ## Recent Sets on Input Page
 - [ ] Show 3 most recently loaded sets under title on input view, with `parseRow`-style header (`N · sets saved` + `View all` link); remove bottom `setsBtn` — see [plans/recent-sets-on-input.md](plans/recent-sets-on-input.md)
 
-## Future Features
-- [ ] 24h trend delta per row: `▲` green / `▼` red (requires `trend` API field)
-- [ ] Show price as stale when cache TTL nearing expiry
+## Price Trend & Staleness
+- [ ] 24h trend delta per row (`▲ +$0.05 (4.2%)`) + stale price indicator near TTL expiry — see [plans/price-trend-and-staleness.md](plans/price-trend-and-staleness.md)
 
 ## Ops
 - [ ] Add `.env.example` with all required vars documented

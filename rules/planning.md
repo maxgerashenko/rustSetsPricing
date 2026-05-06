@@ -20,6 +20,27 @@
 - **Each tier header** shows its own total (Tier 1, Tier 2, Tier 3) — Tier 2 = Chains + Independent.
 - One **Grand total** heading at the top, before Tier 1, formatted the same way as tier headers: `## Grand total — **NK**`. Sums every tier (Tier 1 + Tier 2 + Tier 3).
 
+## How to start planning a new feature
+
+**Trigger:** user describes a new feature/task that isn't in `memory/todo.md` or `_planning.md` yet.
+
+Steps:
+
+1. **Check `memory/todo.md` and `_planning.md` first** — if a matching plan already exists, surface it instead of creating a duplicate.
+2. **Propose a model for the planning session itself** per [rules/models.md](models.md) — design work usually wants Sonnet/Opus. Wait for the user to switch (`/model`) before drafting.
+3. Create the plan file in `plans/<feature-slug>.md` per [rules/todo.md](todo.md) → "Plan Files".
+4. When the plan is considered finished, follow "How to create a planning entry" below — estimate cost, pick best-fit *implementation* model, add to `memory/todo.md` and `_planning.md`.
+
+## Before implementing a task
+
+**Trigger:** user asks to implement, build, or work on something.
+
+Steps:
+
+1. **Read `memory/todo.md` and `_planning.md` first** to see if an entry already exists. If yes, use that plan; do not start a parallel one.
+2. If the request matches an existing entry, propose switching to the **preferred model** shown in brackets in `_planning.md`. Wait for the user to switch before coding.
+3. If no entry exists and the work is non-trivial, treat this as planning a new feature (see above) instead of jumping straight to code.
+
 ## Selection rule
 
 When the user asks to "work on todo", "pick next task", "what's next", or similar:

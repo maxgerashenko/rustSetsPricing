@@ -52,6 +52,7 @@ function ListViewPage() {
     <ListView
       rawList={list}
       onBack={() => navigate('/')}
+      onAllSets={() => navigate('/sets')}
     />
   )
 }

@@ -15,7 +15,7 @@ const fetchItem = async (name, signal) => {
   return res.json()
 }
 
-export default function ListView({ rawList, onBack }) {
+export default function ListView({ rawList, onBack, onAllSets }) {
   const [items, setItems] = useState([])
   const [currency, setCurrency] = useState('USD')
   const [setHash, setSetHash] = useState(null)
@@ -74,9 +74,14 @@ export default function ListView({ rawList, onBack }) {
         <ListControls items={items} currency={currency} setHash={setHash} onEdit={onBack} />
       </div>
 
-      <button className={styles.foothint} type="button" onClick={onBack}>
-        ← New list
-      </button>
+      <div className={styles.foothintRow}>
+        <button className={styles.foothint} type="button" onClick={onBack}>
+          + New set
+        </button>
+        <button className={styles.foothint} type="button" onClick={onAllSets}>
+          ☰ All sets
+        </button>
+      </div>
     </div>
   )
 }

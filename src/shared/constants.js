@@ -3,3 +3,5 @@ export const API_ITEM = '/api/item'
 export const API_IMAGES = '/api/images/'
 export const CDN_IMAGE_BASE = 'https://community.fastly.steamstatic.com/economy/image/'
 export const CDN_IMAGE_SUFFIX = '/62fx62fdpx%202x'
+
+export const SNACKBAR_DELETE_DELAY_MS = 12000

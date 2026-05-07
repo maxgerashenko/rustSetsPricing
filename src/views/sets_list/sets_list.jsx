@@ -2,11 +2,14 @@ import { useEffect, useState } from 'react'
 import styles from './sets_list.module.css'
 import appStyles from '../../app.module.css'
 import SetItem from './set_item.jsx'
+import { useSnackbar } from '../../shared/snackbar/snackbar.jsx'
+import { SNACKBAR_DELETE_DELAY_MS } from '../../shared/constants.js'
 
 export default function SetsList({ onBack }) {
   const [sets, setSets] = useState([])
   const [loading, setLoading] = useState(true)
   const [currency, setCurrency] = useState('USD')
+  const { confirm } = useSnackbar()
 
   useEffect(() => {
     const fetchSets = async () => {
@@ -26,15 +29,24 @@ export default function SetsList({ onBack }) {
     fetchSets()
   }, [])
 
-  const handleDelete = async (setHash) => {
-    try {
-      const res = await fetch(`/api/sets/${setHash}`, { method: 'DELETE' })
-      if (res.ok) {
-        setSets(sets.filter(set => set.hash !== setHash))
-      }
-    } catch (err) {
-      console.error('Failed to delete set:', err)
-    }
+  const handleDelete = (setHash) => {
+    const previous = sets
+    setSets(prev => prev.filter(set => set.hash !== setHash))
+    confirm({
+      message: 'Set will be deleted in {n}',
+      actionLabel: 'Cancel',
+      delayMs: SNACKBAR_DELETE_DELAY_MS,
+      onConfirm: async () => {
+        try {
+          const res = await fetch(`/api/sets/${setHash}`, { method: 'DELETE' })
+          if (!res.ok) setSets(previous)
+        } catch (err) {
+          console.error('Failed to delete set:', err)
+          setSets(previous)
+        }
+      },
+      onCancel: () => setSets(previous),
+    })
   }
 
   return (

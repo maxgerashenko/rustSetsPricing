@@ -11,8 +11,6 @@ See [rules/planning.md](../rules/planning.md) for selection rules.
 
 ## In Progress — **0K**
 
-✓ results-all-sets-button (5K)
-
 ---
 
 ## Available — **172K**

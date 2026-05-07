@@ -35,3 +35,11 @@ export const EditIcon = () => (
     <path d="M2.5 13.5l1-3L11 3l2 2-7.5 7.5-3 1z" stroke="currentColor" strokeWidth="1.6" strokeLinejoin="round"/>
   </svg>
 )
+
+export const TrashIcon = () => (
+  <svg width="15" height="15" viewBox="0 0 16 16" fill="none">
+    <path d="M13 4L12.1 13.1A1 1 0 0111.1 14H4.9a1 1 0 01-1-.9L3 4" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/>
+    <path d="M1 4h14" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round"/>
+    <path d="M5.5 4V3a1 1 0 011-1h3a1 1 0 011 1v1" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/>
+  </svg>
+)

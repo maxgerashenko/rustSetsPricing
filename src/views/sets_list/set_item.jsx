@@ -2,6 +2,7 @@ import { useNavigate } from 'react-router-dom'
 import styles from './sets_list.module.css'
 import { parseDollars, formatPrice } from '../../shared/utils.js'
 import { sortItems } from '../../shared/itemSorting.js'
+import { TrashIcon } from '../../shared/icons.jsx'
 
 export default function SetItem({ set, currency, onDelete }) {
   const total = set.items.reduce((sum, item) => sum + (parseDollars(item.price) || 0), 0)
@@ -45,8 +46,8 @@ export default function SetItem({ set, currency, onDelete }) {
                         src={item.url}
                         alt={item.name}
                         title={item.name}
-                        width={48}
-                        height={48}
+                        width={40}
+                        height={40}
                       />
                     )
                     : <div className={styles.iconPlaceholder} />
@@ -60,10 +61,10 @@ export default function SetItem({ set, currency, onDelete }) {
             <div className={styles.itemCount}>
               {set.items.length} item{set.items.length !== 1 ? 's' : ''}
             </div>
-            <div className={styles.totalPrice}>
-              {formatPrice(total, currency)}
-            </div>
           </div>
+        </div>
+        <div className={styles.totalPrice}>
+          {formatPrice(total, currency)}
         </div>
       </div>
 
@@ -73,6 +74,7 @@ export default function SetItem({ set, currency, onDelete }) {
         aria-label="Delete set"
         type="button"
       >
+        <TrashIcon />
         Delete
       </button>
     </div>

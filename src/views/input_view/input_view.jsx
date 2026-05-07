@@ -72,7 +72,7 @@ export default function InputView({ onSubmit, onViewSets, onOpenSet }) {
             </button>
           </div>
         </div>
-        <p className={styles.hint}>Pulls live community-market medians · refreshed every 5 min</p>
+        <p className={styles.hint}>Steam Market 24h median · cached 4h server-side</p>
       </form>
     </>
   )

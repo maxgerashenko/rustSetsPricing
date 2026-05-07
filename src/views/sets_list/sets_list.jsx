@@ -59,24 +59,39 @@ export default function SetsList({ onBack }) {
 
       {loading ? (
         <div className={styles.loading}>Loading sets...</div>
-      ) : sets.length === 0 ? (
-        <div className={styles.empty}>No sets yet. Create one to get started.</div>
       ) : (
-        <div className={styles.setsList}>
-          {sets.map(set => (
-            <SetItem
-              key={set.hash}
-              set={set}
-              currency={currency}
-              onDelete={handleDelete}
-            />
-          ))}
+        <div className={styles.listPanel}>
+          {sets.length === 0 ? (
+            <div className={styles.empty}>No sets yet. Create one to get started.</div>
+          ) : (
+            <div className={styles.setsList}>
+              {sets.map(set => (
+                <SetItem
+                  key={set.hash}
+                  set={set}
+                  currency={currency}
+                  onDelete={handleDelete}
+                />
+              ))}
+            </div>
+          )}
+          <div className={styles.countBar}>
+            <span className={appStyles.parseCount}>
+              <b>{sets.length}</b> · {sets.length === 1 ? 'set' : 'sets'} saved
+            </span>
+            <span className={styles.tagline}>
+              {sets.length === 0
+                ? 'No sets yet'
+                : sets.length === 1
+                  ? 'Just one so far'
+                  : 'All sets are unique'}
+            </span>
+            <button className={styles.newSetBtn} type="button" onClick={onBack}>
+              + Add new set
+            </button>
+          </div>
         </div>
       )}
-
-      <button className={styles.foothint} type="button" onClick={onBack}>
-        ← New set
-      </button>
     </div>
   )
 }

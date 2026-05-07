@@ -52,6 +52,7 @@ function ListViewPage() {
     <ListView
       rawList={list}
       onBack={() => navigate('/')}
+      onAllSets={() => navigate('/sets')}
     />
   )
 }
@@ -80,6 +81,7 @@ export default function App() {
                   navigate('/list', { state: { list } })
                 }}
                 onViewSets={() => navigate('/sets')}
+                onOpenSet={(hash) => navigate(`/list?set=${hash}`)}
               />
             }
           />

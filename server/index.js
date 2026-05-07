@@ -6,6 +6,7 @@ import { S3Client, GetObjectCommand, CreateBucketCommand, HeadBucketCommand } fr
 import { fetchAndStoreImage } from './image_cache.js'
 import { pool, initDb } from './db.js'
 import { BROWSER_CACHE_ENABLED } from './flags.js'
+import { resolveLocTable, fetchLocName, fetchLocNames } from './loc.js'
 
 const s3 = new S3Client({
   endpoint: process.env.S3_ENDPOINT,
@@ -102,8 +103,9 @@ app.get('/api/item', async (req, res) => {
   const hashValid = cached?.hash != null
 
   if (priceValid && hashValid) {
+    const localizedName = await fetchLocName(pool, resolveLocTable(req), cached.hash, name)
     if (BROWSER_CACHE_ENABLED) res.setHeader('Cache-Control', 'public, max-age=14400')
-    res.json({ price: cached.price, hash: cached.hash, url: `/api/images/${cached.hash}` })
+    res.json({ name: localizedName, price: cached.price, hash: cached.hash, url: `/api/images/${cached.hash}` })
     return
   }
 
@@ -156,25 +158,31 @@ app.get('/api/item', async (req, res) => {
     )
   }
 
+  const localizedName = hash != null
+    ? await fetchLocName(pool, resolveLocTable(req), hash, name)
+    : name
+
   if (BROWSER_CACHE_ENABLED) res.setHeader('Cache-Control', 'public, max-age=14400')
-  res.json({ price, hash, url: hash != null ? `/api/images/${hash}` : null })
+  res.json({ name: localizedName, price, hash, url: hash != null ? `/api/images/${hash}` : null })
 })
 
 const hash64 = val => createHash('sha256').update(val).digest().readBigUInt64BE(0).toString(16).padStart(16, '0')
 
 app.get('/api/sets', async (req, res) => {
   try {
-    const { rows: sets } = await pool.query(
-      'SELECT set_hash, items, created_at FROM items_sets ORDER BY created_at DESC'
-    )
+    const limit = Number.parseInt(req.query.limit, 10)
+    const limitClause = Number.isFinite(limit) && limit > 0 ? ` LIMIT ${limit}` : ''
 
+    const [{ rows: sets }, { rows: countRows }] = await Promise.all([
+      pool.query(
+        `SELECT set_hash, items, created_at, last_loaded_at FROM items_sets ORDER BY last_loaded_at DESC NULLS LAST${limitClause}`
+      ),
+      pool.query('SELECT COUNT(*)::int AS total FROM items_sets'),
+    ])
+
+    const locTable = resolveLocTable(req)
     const setsData = await Promise.all(sets.map(async (set) => {
-      const { rows: names } = await pool.query(
-        'SELECT hash, name FROM loc_eng WHERE hash = ANY($1)',
-        [set.items]
-      )
-
-      const hashToName = Object.fromEntries(names.map(r => [r.hash, r.name]))
+      const hashToName = await fetchLocNames(pool, locTable, set.items)
       const itemNames = set.items.map(h => hashToName[h]).filter(Boolean)
 
       const { rows: items } = await pool.query(
@@ -193,10 +201,11 @@ app.get('/api/sets', async (req, res) => {
         hash: set.set_hash,
         items: itemData,
         createdAt: set.created_at,
+        lastLoadedAt: set.last_loaded_at,
       }
     }))
 
-    res.json(setsData)
+    res.json({ total: countRows[0].total, sets: setsData })
   } catch (err) {
     console.error('[Sets] error fetching all sets:', err.message)
     res.status(500).json({ error: 'Failed to fetch sets' })
@@ -217,7 +226,9 @@ app.post('/api/sets', async (req, res) => {
     .padStart(16, '0')
 
   await pool.query(
-    'INSERT INTO items_sets (set_hash, items) VALUES ($1, $2) ON CONFLICT (set_hash) DO NOTHING',
+    `INSERT INTO items_sets (set_hash, items, last_loaded_at)
+     VALUES ($1, $2, NOW())
+     ON CONFLICT (set_hash) DO UPDATE SET last_loaded_at = NOW()`,
     [setHash, sorted]
   )
 
@@ -225,14 +236,16 @@ app.post('/api/sets', async (req, res) => {
 })
 
 app.get('/api/sets/:hash', async (req, res) => {
-  const { loc = 'eng' } = req.query
   const { rows } = await pool.query('SELECT * FROM items_sets WHERE set_hash = $1', [req.params.hash])
   if (rows.length === 0) { res.status(404).end(); return }
 
   const setData = rows[0]
   const hashes = setData.items
 
-  const locTable = `loc_${loc}`
+  pool.query('UPDATE items_sets SET last_loaded_at = NOW() WHERE set_hash = $1', [req.params.hash])
+    .catch(err => console.error('[Sets] last_loaded_at bump failed:', err.message))
+
+  const locTable = resolveLocTable(req)
   let nameRows = { rows: [] }
   try {
     nameRows = await pool.query(

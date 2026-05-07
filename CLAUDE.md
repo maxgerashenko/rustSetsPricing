@@ -42,3 +42,4 @@ Keep responses under 1500 tokens. If a complete answer requires more, stop and a
 - TODO management: [rules/todo.md](rules/todo.md)
 - Planning / next-task selection: [rules/planning.md](rules/planning.md)
 - Model selection: [rules/models.md](rules/models.md)
+- Git: [rules/git.md](rules/git.md)

@@ -4,14 +4,16 @@
   "version": "0.0.1",
   "type": "module",
   "scripts": {
-    "dev": "concurrently \"node --watch server/index.js\" \"vite\"",
+    "dev": "docker-compose up",
+    "test": "node --test server/*.test.js",
+    "stop": "docker-compose down",
+    "clean": "docker-compose down -v",
     "front": "vite",
     "server": "node --watch server/index.js",
     "s3": "minio server /Users/max/minio-data --address :9000 --console-address :9001",
-    "kill": "pkill -f 'server/index.js' || true",
-    "test": "node --test server/*.test.js",
-    "build": "vite build",
-    "preview": "vite preview"
+    "pg": "docker-compose up postgres",
+    "kill:backend": "pkill -f 'server/index.js' || true",
+    "kill:front": "pkill -f vite || true"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.750.0",

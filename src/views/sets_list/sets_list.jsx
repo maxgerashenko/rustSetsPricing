@@ -2,11 +2,14 @@ import { useEffect, useState } from 'react'
 import styles from './sets_list.module.css'
 import appStyles from '../../app.module.css'
 import SetItem from './set_item.jsx'
+import { useSnackbar } from '../../shared/snackbar/snackbar.jsx'
+import { SNACKBAR_DELETE_DELAY_MS } from '../../shared/constants.js'
 
 export default function SetsList({ onBack }) {
   const [sets, setSets] = useState([])
   const [loading, setLoading] = useState(true)
   const [currency, setCurrency] = useState('USD')
+  const { confirm } = useSnackbar()
 
   useEffect(() => {
     const fetchSets = async () => {
@@ -14,7 +17,7 @@ export default function SetsList({ onBack }) {
         const res = await fetch('/api/sets')
         if (res.ok) {
           const data = await res.json()
-          setSets(data)
+          setSets(data.sets)
         }
       } catch (err) {
         console.error('Failed to fetch sets:', err)
@@ -26,15 +29,24 @@ export default function SetsList({ onBack }) {
     fetchSets()
   }, [])
 
-  const handleDelete = async (setHash) => {
-    try {
-      const res = await fetch(`/api/sets/${setHash}`, { method: 'DELETE' })
-      if (res.ok) {
-        setSets(sets.filter(set => set.hash !== setHash))
-      }
-    } catch (err) {
-      console.error('Failed to delete set:', err)
-    }
+  const handleDelete = (setHash) => {
+    const previous = sets
+    setSets(prev => prev.filter(set => set.hash !== setHash))
+    confirm({
+      message: 'Set will be deleted in {n}',
+      actionLabel: 'Cancel',
+      delayMs: SNACKBAR_DELETE_DELAY_MS,
+      onConfirm: async () => {
+        try {
+          const res = await fetch(`/api/sets/${setHash}`, { method: 'DELETE' })
+          if (!res.ok) setSets(previous)
+        } catch (err) {
+          console.error('Failed to delete set:', err)
+          setSets(previous)
+        }
+      },
+      onCancel: () => setSets(previous),
+    })
   }
 
   return (
@@ -59,24 +71,39 @@ export default function SetsList({ onBack }) {
 
       {loading ? (
         <div className={styles.loading}>Loading sets...</div>
-      ) : sets.length === 0 ? (
-        <div className={styles.empty}>No sets yet. Create one to get started.</div>
       ) : (
-        <div className={styles.setsList}>
-          {sets.map(set => (
-            <SetItem
-              key={set.hash}
-              set={set}
-              currency={currency}
-              onDelete={handleDelete}
-            />
-          ))}
+        <div className={styles.listPanel}>
+          {sets.length === 0 ? (
+            <div className={styles.empty}>No sets yet. Create one to get started.</div>
+          ) : (
+            <div className={styles.setsList}>
+              {sets.map(set => (
+                <SetItem
+                  key={set.hash}
+                  set={set}
+                  currency={currency}
+                  onDelete={handleDelete}
+                />
+              ))}
+            </div>
+          )}
+          <div className={styles.countBar}>
+            <span className={appStyles.parseCount}>
+              <b>{sets.length}</b> · {sets.length === 1 ? 'set' : 'sets'} saved
+            </span>
+            <span className={styles.tagline}>
+              {sets.length === 0
+                ? 'No sets yet'
+                : sets.length === 1
+                  ? 'Just one so far'
+                  : 'All sets are unique'}
+            </span>
+            <button className={styles.newSetBtn} type="button" onClick={onBack}>
+              + Add new set
+            </button>
+          </div>
         </div>
       )}
-
-      <button className={styles.foothint} type="button" onClick={onBack}>
-        ← New set
-      </button>
     </div>
   )
 }

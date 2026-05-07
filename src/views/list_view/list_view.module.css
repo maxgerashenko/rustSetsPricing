@@ -321,9 +321,14 @@
   transform: translateY(1px);
 }
 
-/* Footer ← New list */
+/* Footer buttons */
+.foothintRow {
+  display: flex;
+  gap: 16px;
+  justify-content: center;
+}
+
 .foothint {
-  align-self: center;
   background: none;
   border: 0;
   cursor: pointer;

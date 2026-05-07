@@ -5,7 +5,7 @@ See [rules/planning.md](../rules/planning.md) for selection rules.
 
 **Token estimates** are in `K` for the **preferred model** shown in brackets. Haiku's 44K / 5h limit is the reference budget for Haiku tasks; Sonnet/Opus tasks are sized for their own session budgets.
 
-## Grand total — **153K**
+## Grand total — **171K**
 
 ---
 
@@ -13,9 +13,9 @@ See [rules/planning.md](../rules/planning.md) for selection rules.
 
 ---
 
-## Available — **137K**
+## Available — **155K**
 
-### Chains — **112K**
+### Chains — **155K**
 
 **Slot priorities** — **90K**
 1. [move-item-priority-to-db](move-item-priority-to-db.md) — **25K (Sonnet)**
@@ -26,9 +26,9 @@ See [rules/planning.md](../rules/planning.md) for selection rules.
 1. [set-cached-total](set-cached-total.md) — **18K (Sonnet)**
 2. ↳ [price-trend-and-staleness](price-trend-and-staleness.md) — **22K (Sonnet)**
 
-### Independent — **25K**
-
-- [inline-edit-list](inline-edit-list.md) — **25K (Sonnet)**
+**Inline row actions** — **43K**
+1. [inline-edit-list](inline-edit-list.md) — **25K (Sonnet)**
+2. ↳ [inline-delete-item](inline-delete-item.md) — **18K (Sonnet)**
 
 ---
 

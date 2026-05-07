@@ -4,62 +4,37 @@ Web app for the game Rust — paste a list of item/skin names, see each item's i
 
 ## How to run
 
-### With Docker (recommended)
-
-Runs all four services in separate containers: Vite frontend, Express backend, PostgreSQL, and MinIO.
-
 ```sh
-docker compose up
+npm run dev      # start everything (Docker) — Vite, Express, PostgreSQL, MinIO
+npm run stop     # stop everything
+npm run clean    # stop and delete all data (volumes)
 ```
 
 | Service | URL |
 |---|---|
-| Frontend (Vite) | http://localhost:5173 |
-| Backend (Express) | http://localhost:3001 |
-| MinIO console | http://localhost:9001 — user: `minioadmin`, password: `minioadmin` |
+| Frontend | http://localhost:5173 |
+| Backend | http://localhost:3001 |
+| MinIO console | http://localhost:9001 — `minioadmin` / `minioadmin` |
 
-Editing any file in `src/` or `server/` is reflected immediately — the frontend uses a bind mount with HMR, and the backend uses `node --watch`.
-
-Stop everything:
-
-```sh
-docker compose down
-```
-
-Data persists in Docker volumes (`postgres_data`, `minio_data`). To wipe:
-
-```sh
-docker compose down -v
-```
+File changes in `src/` and `server/` are reflected immediately (HMR + `node --watch`).
 
 ---
 
-### Without Docker (manual)
+### Run services independently (without Docker)
 
-Requires a running PostgreSQL instance and MinIO (or any S3-compatible storage).
-
-**1. Start MinIO**
+Requires PostgreSQL and MinIO running locally. Set `DB_HOST=localhost` in `.env`.
 
 ```sh
-npm run s3
+npm run pg       # start PostgreSQL via Docker only
+npm run s3       # start MinIO locally
+npm run server   # start Express backend (port 3001)
+npm run front    # start Vite frontend (port 5173)
 ```
-
-MinIO console at http://localhost:9001 — user: `minioadmin`, password: `minioadmin`.
-
-**2. Install dependencies**
 
 ```sh
-npm install
+npm run kill:backend  # stop Express backend
+npm run kill:front # stop Vite
 ```
-
-**3. Start both servers**
-
-```sh
-npm run dev
-```
-
-Runs the Express backend (port 3001) and Vite dev server (port 5173) together.
-Open http://localhost:5173.
 
 ## How it works
 
